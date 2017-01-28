@@ -1,10 +1,14 @@
-# Core
+# BaseApp
 
-Core functionality for Felix Online.
+Felix Online reusable app framework.
 
-[![Build Status](https://travis-ci.org/FelixOnline/Core.png)](https://travis-ci.org/FelixOnline/Core)
+BaseApp provides a database ORM and helper classes for Web and CLI applications.
 
-## Concepts
+[![Build Status](https://travis-ci.org/FelixOnline/BaseApp.png)](https://travis-ci.org/FelixOnline/BaseApp)
+
+TODO: Documentation on gh-pages
+
+## Database Concepts
 
 ### Models
 
@@ -18,16 +22,16 @@ use FelixOnline\Core\Type;
 
 class Foo extends BaseDB
 {
-	public $dbtable = 'foo';
-	
-	public function __construct($id = NULL)
-	{
-		$fields = array(
-			'text_field' => new Type\CharField(),
-			'datetime' => new Type\DateTimeField(),
-		);
-		parent::__construct($fields, $id);
-	}
+    public $dbtable = 'foo';
+
+    public function __construct($id = NULL)
+    {
+        $fields = array(
+            'text_field' => new Type\CharField(),
+            'datetime' => new Type\DateTimeField(),
+        );
+        parent::__construct($fields, $id);
+    }
 }
 
 // get a model that already exists
@@ -47,7 +51,7 @@ $fizz->setTextField('Hello World');
 $fizz->save();
 ```
 
-You can also inherit off `BaseModel` if the model is not backed by a database table. 
+You can also inherit off `BaseModel` if the model is not backed by a database table.
 
 #### Foreign Keys
 
@@ -59,28 +63,28 @@ use FelixOnline\Core\Type;
 
 class Foo extends BaseDB
 {
-	public $dbtable = 'foo';
-	
-	public function __construct($id = NULL)
-	{
-		$fields = array(
-			'bar' => new Type\ForeignKey('FelixOnline\Core\Bar'),
-		);
-		parent::__construct($fields, $id);
-	}
+    public $dbtable = 'foo';
+
+    public function __construct($id = NULL)
+    {
+        $fields = array(
+            'bar' => new Type\ForeignKey('FelixOnline\Core\Bar'),
+        );
+        parent::__construct($fields, $id);
+    }
 }
 
 class Bar extends BaseDB
 {
-	public $dbtable = 'bar';
-	
-	public function __construct($id = NULL)
-	{
-		$fields = array(
-			'text' => new Type\CharField(),
-		);
-		parent::__construct($fields, $id);
-	}
+    public $dbtable = 'bar';
+
+    public function __construct($id = NULL)
+    {
+        $fields = array(
+            'text' => new Type\CharField(),
+        );
+        parent::__construct($fields, $id);
+    }
 }
 
 /**
@@ -102,7 +106,7 @@ class Bar extends BaseDB
  * | 2  | Buzz   |
  * +----+--------+
  */
- 
+
 $foo = new Foo(1);
 
 // get foreign key model
@@ -120,8 +124,8 @@ $foo->getBar()->getText(); // 'Fizz'
 Managers are responsible for selecting lists of models from the database with optional filtering. Some models have specific managers, like `ArticleManger` or `CatgoryManager` because they contain custom methods as well. However a generic manager representing a database table and model can be created on the fly using the builder method. See below.
 
 ```php
-$manager = (new FelixOnline\Core\ArticleManager())	->filter('published < NOW()')
-	->order('published', 'DESC');
+$manager = (new FelixOnline\Core\ArticleManager())    ->filter('published < NOW()')
+    ->order('published', 'DESC');
 
 $manager->count(); // get the number of models the manager will return
 
@@ -131,7 +135,7 @@ $manager->values(); // get an array of models
 
 // You can also join managers together
 $authorManager = (new \FelixOnline\Core\ArticleAuthorManager())
-	->filter("author = 'felix'");
+    ->filter("author = 'felix'");
 $manager->join($authorManager);
 
 $manager->values(); // articles by the user 'felix'
@@ -143,13 +147,13 @@ You can create managers on the fly by using the static method `build` on the `Ba
 
 ```php
 $author_manager = BaseManager::build(
-	'FelixOnline\Core\User', // model class
-	'article_author', // database table
-	'author' // primary key
+    'FelixOnline\Core\User', // model class
+    'article_author', // database table
+    'author' // primary key
 );
 
 $author_manager->filter('article = %i', array(1))
-	->values();
+    ->values();
 ```
 
 

@@ -2,5 +2,6 @@ vendor/
 composer.lock
 composer.phar
 phinx.yml
+.DS_Store
 
 tests_coverage/

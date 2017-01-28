@@ -1,41 +1,39 @@
 {
-	"name": "felixonline/core",
-	"description": "Felix Online Core",
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "Jonathan Kim",
-			"email": "jkimbo@gmail.com"
-		},
-		{
-			"name": "Philip Kent",
-			"email": "kentphilip@gmail.com"
-		}
-	],
-	"repositories": [
-	],
-	"require": {
-		"robmorgan/phinx": "0.6.*",
-		"rzekanet/service-akismet": "1.*",
-		"jv2222/ezsql": "dev-master",
-		"tedivm/stash": "0.14.*",
-		"swiftmailer/swiftmailer": "5.*",
-		"oyejorge/less.php": "1.7.*",
-		"mrclay/minify": "2.3.*"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "5.6.*",
-		"phpunit/dbunit": ">=1.2",
-		"ptrofimov/xpmock": "1.1.*",
-		"psy/psysh": "@stable",
-		"fzaninotto/faker": "1.6.*"
-	},
-	"autoload": {
-		"psr-0": {
-			"FelixOnline": "src/"
-		},
-		"classmap": [
-			"lib/SafeSQL.php"
-		]
-	}
+    "name": "felixonline/core",
+    "description": "Felix Online Core",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jonathan Kim",
+            "email": "jkimbo@gmail.com"
+        },
+        {
+            "name": "Philip Kent",
+            "email": "philip.kent@me.com"
+        }
+    ],
+    "repositories": [
+    ],
+    "require": {
+        "robmorgan/phinx": "0.6.*",
+        "jv2222/ezsql": "dev-master",
+        "tedivm/stash": "0.14.*",
+        "oyejorge/less.php": "1.7.*",
+        "mrclay/minify": "2.3.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.6.*",
+        "phpunit/dbunit": ">=1.2",
+        "ptrofimov/xpmock": "1.1.*",
+        "psy/psysh": "@stable",
+        "fzaninotto/faker": "1.6.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "FelixOnline": "src/"
+        },
+        "classmap": [
+            "lib/SafeSQL.php"
+        ]
+    }
 }
