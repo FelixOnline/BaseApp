@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <phpunit colors="true"
          strict="true"
-         verbose="true">
+         verbose="true"
+         bootstrap="vendor/autoload.php">
 
     <logging>
         <log type="coverage-html"
@@ -15,6 +16,10 @@
     <testsuite name="base">
         <directory>tests</directory>
     </testsuite>
+
+    <listeners>
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+    </listeners>
 
     <filter>
         <whitelist>

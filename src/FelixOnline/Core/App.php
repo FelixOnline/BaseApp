@@ -141,11 +141,7 @@ class App implements \ArrayAccess
 
     public function offsetSet($offset, $value)
     {
-        if (is_null($offset)) {
-            $this->container[] = $value;
-        } else {
-            $this->container[$offset] = $value;
-        }
+        $this->container[$offset] = $value;
     }
 
     public function offsetExists($offset)

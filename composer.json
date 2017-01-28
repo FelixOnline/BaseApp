@@ -1,7 +1,7 @@
 {
     "name": "felixonline/core",
     "description": "Felix Online Core",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Jonathan Kim",
@@ -15,22 +15,27 @@
     "repositories": [
     ],
     "require": {
-        "robmorgan/phinx": "0.6.*",
+        "robmorgan/phinx": "@stable",
+        "rzekanet/service-akismet": "@stable",
         "jv2222/ezsql": "dev-master",
-        "tedivm/stash": "0.14.*",
-        "oyejorge/less.php": "1.7.*",
-        "mrclay/minify": "2.3.*"
+        "tedivm/stash": "@stable",
+        "swiftmailer/swiftmailer": "@stable",
+        "oyejorge/less.php": "@stable",
+        "mrclay/minify": "@stable"
     },
     "require-dev": {
-        "phpunit/phpunit": "5.6.*",
-        "phpunit/dbunit": ">=1.2",
-        "ptrofimov/xpmock": "1.1.*",
+        "phpunit/phpunit": "@stable",
+        "phpunit/dbunit": "@stable",
+        "ptrofimov/xpmock": "@stable",
         "psy/psysh": "@stable",
-        "fzaninotto/faker": "1.6.*"
+        "fzaninotto/faker": "@stable",
+        "johnkary/phpunit-speedtrap": "^1.0"
     },
     "autoload": {
-        "psr-0": {
-            "FelixOnline": "src/"
+        "psr-4": {
+            "FelixOnline\\Core\\": "src/FelixOnline/Core",
+            "FelixOnline\\Core\\Type\\": "src/FelixOnline/Core/Type",
+            "FelixOnline\\Exceptions\\": "src/FelixOnline/Exceptions"
         },
         "classmap": [
             "lib/SafeSQL.php"

@@ -2,12 +2,14 @@
 require_once __DIR__ . '/../../../lib/SafeSQL.php';
 require_once __DIR__ . '/../../DatabaseTestCase.php';
 
-class AppTest extends DatabaseTestCase
-{
+/*
+ * As this is a test of the App class, we cannot rely on its operation, and
+ * therefore we don't extend AppTestCase.
+ */
+class AppTest extends DatabaseTestCase {
 	use \Xpmock\TestCaseTrait;
 
-	public function createApp($config)
-	{
+	public function createApp($config) {
 		$app = new \FelixOnline\Core\App($config);
 
 		$dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
@@ -43,25 +45,31 @@ class AppTest extends DatabaseTestCase
 		return $app;
 	}
 
-	public function testApp()
-	{
+	public function testApp() {
 		$app = $this->createApp(array(
-			'base_url' => 'foo'	
+			'base_url' => 'foo'
 		));
 		$this->assertInstanceOf('FelixOnline\Core\App', $app);
 	}
 
-	public function testSingleton()
-	{
-		$app = $this->createApp(array(
-			'base_url' => 'foo'	
-		));
+	public function testAppWithCacheFolder() {
+		define('CACHE_FOLDER', '.');
 
-		$this->assertEquals($app, \FelixOnline\Core\App::getInstance());	
+		$app = $this->createApp(array(
+			'base_url' => 'foo'
+		));
+		$this->assertInstanceOf('FelixOnline\Core\App', $app);
 	}
 
-	public function testAccessBeforeInit()
-	{
+	public function testSingleton()	{
+		$app = $this->createApp(array(
+			'base_url' => 'foo'
+		));
+
+		$this->assertEquals($app, \FelixOnline\Core\App::getInstance());
+	}
+
+	public function testAccessBeforeInit() {
 		\FelixOnline\Core\App::setInstance(null);
 
 		$this->setExpectedException(
@@ -72,8 +80,7 @@ class AppTest extends DatabaseTestCase
 		$app = \FelixOnline\Core\App::getInstance();
 	}
 
-	public function testRequiredOptions()
-	{
+	public function testRequiredOptions() {
 		$this->setExpectedException(
 			'Exception',
 			'"base_url" option has not been defined'
@@ -82,8 +89,7 @@ class AppTest extends DatabaseTestCase
 		$app = $this->createApp(array());
 	}
 
-	public function testGetOption()
-	{
+	public function testGetOption()	{
 		$app = $this->createApp(array(
 			'base_url' => 'foo'
 		));
@@ -91,16 +97,14 @@ class AppTest extends DatabaseTestCase
 		$this->assertEquals($app->getOption('base_url'), 'foo');
 	}
 
-	public function testGetOptionDefault()
-	{
+	public function testGetOptionDefault() {
 		$app = $this->createApp(array(
 			'base_url' => 'foo'
 		));
 		$this->assertEquals($app->getOption('foo', 'bar'), 'bar');
 	}
 
-	public function testGetOptionException()
-	{
+	public function testGetOptionException() {
 		$this->setExpectedException(
 			'FelixOnline\Exceptions\InternalException',
 			'Option "bar" has not been set'
@@ -113,8 +117,7 @@ class AppTest extends DatabaseTestCase
 		$app->getOption('bar');
 	}
 
-	public function testRunNoDbException()
-	{
+	public function testRunNoDbException() {
 		\FelixOnline\Core\App::setInstance(null);
 
 		$this->setExpectedException(
@@ -128,8 +131,7 @@ class AppTest extends DatabaseTestCase
 		$app->run();
 	}
 
-	public function testRunWrongDbTypeException()
-	{
+	public function testRunWrongDbTypeException() {
 		\FelixOnline\Core\App::setInstance(null);
 
 		$this->setExpectedException(
@@ -144,8 +146,7 @@ class AppTest extends DatabaseTestCase
 		$app->run();
 	}
 
-	public function testRunNoSafesqlException()
-	{
+	public function testRunNoSafesqlException()	{
 		\FelixOnline\Core\App::setInstance(null);
 
 		$this->setExpectedException(
@@ -162,8 +163,7 @@ class AppTest extends DatabaseTestCase
 		$app->run();
 	}
 
-	public function testRunNoWrongSafesqlException()
-	{
+	public function testRunNoWrongSafesqlException() {
 		\FelixOnline\Core\App::setInstance(null);
 
 		$this->setExpectedException(
@@ -181,8 +181,7 @@ class AppTest extends DatabaseTestCase
 		$app->run();
 	}
 
-	public function testQuery()
-	{
+	public function testQuery()	{
 		$app = $this->createApp(array(
 			'base_url' => 'foo',
 		));
@@ -193,8 +192,7 @@ class AppTest extends DatabaseTestCase
 		);
 	}
 
-	public function testNotSetException()
-	{
+	public function testNotSetException() {
 		$app = $this->createApp(array(
 			'base_url' => 'foo',
 		));
@@ -208,8 +206,7 @@ class AppTest extends DatabaseTestCase
 		$app['foo'];
 	}
 
-	public function testUnset()
-	{
+	public function testUnset() {
 		$app = $this->createApp(array(
 			'base_url' => 'foo',
 		));

@@ -1,171 +1,213 @@
 <?php
- 
-class DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
-{
-	public $fixtures = array();
-	private $conn = null;
 
-	public function setUp() {
-		$conn = $this->getConnection();
-		$pdo = $conn->getConnection();
+class DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase {
+    public $fixtures = array();
+    private $conn = null;
 
-		// set up tables
-		$fixtureDataSet = $this->getDataSet($this->fixtures);
-		list($fixtureMeta, $fixtureKeys) = $this->getDataSetMeta($this->fixtures);
-		foreach ($fixtureDataSet->getTableNames() as $table) {
-			// drop table
-			$pdo->exec("DROP TABLE IF EXISTS `$table`;");
-			// recreate table
-			$meta = $fixtureDataSet->getTableMetaData($table);
-			$create = "CREATE TABLE IF NOT EXISTS `$table` ";
-			$cols = array();
-			foreach ($meta->getColumns() as $col) {
-				if (isset($fixtureMeta[$table][$col])) {
-					$cols[] = $this->createFieldSQL($col, $fixtureMeta[$table][$col]['@attributes']);
-				} else {
-					$cols[] = "`$col` VARCHAR(400)";
-				}
-			}
+    /*
+     * Open database connection and create tables for each fixture.
+     */
+    public function setUp() {
+        $conn = $this->getConnection();
+        $pdo = $conn->getConnection();
 
-			// Set primary key
-			if (isset($fixtureKeys[$table]) && isset($fixtureKeys[$table]['PRIMARY'])) {
-				$cols[] = 'PRIMARY KEY (`' . $fixtureKeys[$table]['PRIMARY']['@attributes']['Column_name'] . '`)';
-			}
+        // set up tables
+        $fixtureDataSet = $this->getDataSet($this->fixtures);
+        list($fixtureMeta, $fixtureKeys) = $this->getDataSetMeta($this->fixtures);
 
-			$create .= '('.implode(',', $cols).');';
+        foreach($fixtureDataSet->getTableNames() as $table) {
+            // drop table
+            $pdo->exec("DROP TABLE IF EXISTS `$table`;");
 
-			try {
-				$pdo->exec($create);
-			} catch(\Exception $e) {
-				echo $create."\n";
-				throw $e;
-			}
-		}
+            // recreate table
+            $meta = $fixtureDataSet->getTableMetaData($table);
+            $create = "CREATE TABLE IF NOT EXISTS `$table` ";
 
-		parent::setUp();
-	}
- 
-	public function tearDown() {
-		$allTables = $this->getDataSet($this->fixtures)->getTableNames();
-		foreach ($allTables as $table) {
-			// drop table
-			$conn = $this->getConnection();
-			$pdo = $conn->getConnection();
-			$pdo->exec("DROP TABLE IF EXISTS `$table`;");
-		}
+            $cols = array();
+            foreach($meta->getColumns() as $col) {
+                if(isset($fixtureMeta[$table][$col])) {
+                    $cols[] = $this->createFieldSQL(
+                        $col,
+                        $fixtureMeta[$table][$col]['@attributes']
+                    );
+                } else {
+                    $cols[] = "`$col` VARCHAR(400)";
+                }
+            }
 
-		$conn = $this->getConnection();
-		$pdo = $conn->getConnection();
+            // Set primary key
+            if(
+                isset($fixtureKeys[$table])
+                && isset($fixtureKeys[$table]['PRIMARY'])
+            ) {
+                $cols[] = 'PRIMARY KEY (`' . $fixtureKeys[$table]['PRIMARY']['@attributes']['Column_name'] . '`)';
+            }
 
-		$this->conn = null;
+            $create .= '('.implode(',', $cols).');';
 
-		parent::tearDown();
-	}
- 
-	public function getConnection() {
-		if ($this->conn === null) {
-			try {
-				$dbname = "test_media_felix";
-				$dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
-				$dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
-				$pdo = new PDO('mysql:host=localhost;dbname='.$dbname, $dbuser, $dbpass);
-				$this->conn = $this->createDefaultDBConnection($pdo, 'test');
-			} catch (PDOException $e) {
-				echo $e->getMessage();
-			}
-		}
-		return $this->conn;
-	}
- 
-	public function getDataSet($fixtures = array()) {
-		if (empty($fixtures)) {
-			$fixtures = $this->fixtures;
-		}
-		$compositeDs = new PHPUnit_Extensions_Database_DataSet_CompositeDataSet(array());
-		$fixturePath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'fixtures';
+            try {
+                $pdo->exec($create);
+            } catch(\Exception $e) {
+                echo $create."\n";
+                throw $e;
+            }
+        }
 
-		foreach ($fixtures as $fixture) {
-			$path =  $fixturePath . DIRECTORY_SEPARATOR . "$fixture.xml";
-			$ds = $this->createMySQLXMLDataSet($path);
-			$compositeDs->addDataSet($ds);
-		}
-		return $compositeDs;
-	}
-	
-	public function getDataSetMeta($fixtures = array()) {
-		$fixturePath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'fixtures';
+        parent::setUp();
+    }
 
-		$meta = array();
-		$keys = array();
+    /*
+     * Disconnect from database, after deleting old data.
+     */
+    public function tearDown() {
+        $allTables = $this->getDataSet($this->fixtures)->getTableNames();
 
-		foreach ($fixtures as $fixture) {
-			$file =  $fixturePath . DIRECTORY_SEPARATOR . "$fixture.xml";
-			$xmlFileContents = simplexml_load_file($file);
+        foreach($allTables as $table) {
+            // drop table
+            $conn = $this->getConnection();
+            $pdo = $conn->getConnection();
+            $pdo->exec("DROP TABLE IF EXISTS `$table`;");
+        }
 
-			foreach ($xmlFileContents->xpath('./database/table_structure') as $tableElement) {
+        $conn = $this->getConnection();
+        $pdo = $conn->getConnection();
 
-				$tableName = (string) $tableElement['name'];
+        $this->conn = null;
 
-				if (!isset($meta[$tableName])) {
-					$meta[$tableName] = array();
-				}
+        parent::tearDown();
+    }
 
-				if (!isset($keys[$tableName])) {
-					$keys[$tableName] = array();
-				}
+    /*
+     * Open new database connection.
+     * Set DB login details via DB_USER and DB_PASS environment variables.
+     */
+    public function getConnection() {
+        if($this->conn === null) {
+            try {
+                $dbname = "test_media_felix";
+                $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+                $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+                $pdo = new PDO(
+                    'mysql:host=localhost;dbname='.$dbname,
+                    $dbuser,
+                    $dbpass
+                );
+                $this->conn = $this->createDefaultDBConnection($pdo, 'test');
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+        return $this->conn;
+    }
 
-				foreach ($tableElement->xpath('./field') as $fieldElement) {
-					if (empty($fieldElement['Field'])) {
-						throw new PHPUnit_Extensions_Database_Exception('<field> elements must include a Field attribute');
-					}
+    /*
+     * For each fixture file, load the file into the PHPUnit database dataset.
+     */
+    public function getDataSet($fixtures = array()) {
+        if(empty($fixtures)) {
+            $fixtures = $this->fixtures;
+        }
 
-					$columnName = (string) $fieldElement['Field'];
+        $compositeDs = new PHPUnit_Extensions_Database_DataSet_CompositeDataSet(array());
+        $fixturePath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'fixtures';
 
-					if (!isset($meta[$tableName][$columnName])) {
-						$meta[$tableName][$columnName] = (array) $fieldElement;
-					}
-				}
+        foreach($fixtures as $fixture) {
+            $path = $fixturePath . DIRECTORY_SEPARATOR . "$fixture.xml";
+            $ds = $this->createMySQLXMLDataSet($path);
+            $compositeDs->addDataSet($ds);
+        }
 
-				// get primary key
-				foreach ($tableElement->xpath('./key[@Key_name="PRIMARY"]') as $primaryKey) {
-					$keys[$tableName]['PRIMARY'] = (array) $primaryKey;
-				}
-			}
-		}
+        return $compositeDs;
+    }
 
-		return array($meta, $keys);
-	}
+    /*
+     * For each fixture file, extract fixture and key information.
+     */
+    public function getDataSetMeta($fixtures = array()) {
+        $fixturePath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'fixtures';
 
-	public function createFieldSQL($column, $meta) {
-		$arr = array(
-			"`" . $column . "`"
-		);
+        $meta = array();
+        $keys = array();
 
-		if (isset($meta['Type'])) {
-			$arr[] = $meta['Type'];
-		} else {
-			$arr[] = "VARCHAR(400)";
-		}
+        foreach($fixtures as $fixture) {
+            $file =  $fixturePath . DIRECTORY_SEPARATOR . "$fixture.xml";
+            $xmlFileContents = simplexml_load_file($file);
 
-		if (isset($meta['Null']) && $meta['Null'] == 'NO') {
-			$arr[] = "NOT NULL";
-		}
+            foreach(
+                $xmlFileContents->xpath('./database/table_structure')
+                as $tableElement
+            ) {
+                $tableName = (string) $tableElement['name'];
 
-		if (isset($meta['Default'])) {
-			$arr[] = "DEFAULT " . $meta['Default'];
-		}
+                if (!isset($meta[$tableName])) {
+                    $meta[$tableName] = array();
+                }
 
-		if (isset($meta['Extra'])) {
-			$arr[] = $meta['Extra'];
-		}
+                if (!isset($keys[$tableName])) {
+                    $keys[$tableName] = array();
+                }
 
-		return implode(" ", $arr);
-	}
+                foreach($tableElement->xpath('./field') as $fieldElement) {
+                    if(empty($fieldElement['Field'])) {
+                        throw new PHPUnit_Extensions_Database_Exception(
+                            '<field> elements must include a Field attribute'
+                        );
+                    }
 
-	public function loadDataSet($dataSet) {
-		// set the new dataset
-		$this->getDatabaseTester()->setDataSet($dataSet);
-		// call setUp whateverhich adds the rows
-		$this->getDatabaseTester()->onSetUp();
-	}
+                    $columnName = (string) $fieldElement['Field'];
+
+                    if(!isset($meta[$tableName][$columnName])) {
+                        $meta[$tableName][$columnName] = (array) $fieldElement;
+                    }
+                }
+
+                // get primary key
+                foreach(
+                    $tableElement->xpath('./key[@Key_name="PRIMARY"]')
+                    as $primaryKey
+                ) {
+                    $keys[$tableName]['PRIMARY'] = (array) $primaryKey;
+                }
+            }
+        }
+
+        return array($meta, $keys);
+    }
+
+    /*
+     * Based on the field information extracted in getDataSetMeta,
+     * generate a column creation statement.
+     */
+    public function createFieldSQL($column, $meta) {
+        $arr = array(
+            "`" . $column . "`"
+        );
+
+        if(isset($meta['Type'])) {
+            $arr[] = $meta['Type'];
+        } else {
+            $arr[] = "VARCHAR(400)";
+        }
+
+        if(isset($meta['Null']) && $meta['Null'] == 'NO') {
+            $arr[] = "NOT NULL";
+        }
+
+        if(isset($meta['Default'])) {
+            $arr[] = "DEFAULT " . $meta['Default'];
+        }
+
+        if(isset($meta['Extra'])) {
+            $arr[] = $meta['Extra'];
+        }
+
+        return implode(" ", $arr);
+    }
+
+    public function loadDataSet($dataSet) {
+        // set the new dataset
+        $this->getDatabaseTester()->setDataSet($dataSet);
+        // call setUp whateverhich adds the rows
+        $this->getDatabaseTester()->onSetUp();
+    }
 }

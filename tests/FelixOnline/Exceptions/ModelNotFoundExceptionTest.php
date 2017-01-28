@@ -3,16 +3,27 @@ class ModelNotFoundExceptionTest extends PHPUnit_Framework_TestCase
 {
 	public function testException()
 	{
-		$this->setExpectedException('FelixOnline\Exceptions\ModelNotFoundException');
-		throw new \FelixOnline\Exceptions\ModelNotFoundException('foo', 'abc', 'def');
+		$this->setExpectedException(
+			'FelixOnline\Exceptions\ModelNotFoundException'
+		);
+		throw new \FelixOnline\Exceptions\ModelNotFoundException(
+			'foo',
+			'abc',
+			'def'
+		);
 	}
 
 	public function testExceptionMessage()
 	{
 		$this->setExpectedException(
-			'FelixOnline\Exceptions\ModelNotFoundException', 'foo'
+			'FelixOnline\Exceptions\ModelNotFoundException',
+			'foo'
 		);
-		throw new \FelixOnline\Exceptions\ModelNotFoundException('foo', 'abc', 'def');
+		throw new \FelixOnline\Exceptions\ModelNotFoundException(
+			'foo',
+			'abc',
+			'def'
+		);
 	}
 
 	public function testExceptionCode()
@@ -22,6 +33,10 @@ class ModelNotFoundExceptionTest extends PHPUnit_Framework_TestCase
 			'foo',
 			102
 		);
-		throw new \FelixOnline\Exceptions\ModelNotFoundException('foo', 'abc', 'def');
+		throw new \FelixOnline\Exceptions\ModelNotFoundException(
+			'foo',
+			'abc',
+			'def'
+		);
 	}
 }
