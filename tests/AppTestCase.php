@@ -21,7 +21,8 @@ class AppTestCase extends DatabaseTestCase {
 
         // create app
         $config = $this->appConfig + array(
-            'base_url' => 'http://localhost/'
+            'base_url' => 'http://localhost/',
+            'unit_tests' => true
         );
 
         $app = new \FelixOnline\Core\App($config);
@@ -42,7 +43,7 @@ class AppTestCase extends DatabaseTestCase {
 
         $app['safesql'] = new \SafeSQL_MySQLi($db->dbh);
 
-        $app['env'] = \FelixOnline\Core\Environment::mock();
+        $app['env'] = new \FelixOnline\Core\HttpEnvironment();
 
         // Initialize Akismet
         $connector = new \Riv\Service\Akismet\Connector\Test();
@@ -74,7 +75,7 @@ class AppTestCase extends DatabaseTestCase {
         $app['env']['cookies'] = $cookies;
 
         if ($this->setCurrentUser) {
-            $app['currentuser'] = new \FelixOnline\Core\CurrentUser();
+            $app['currentuser'] = new \FelixOnline\Core\StubCurrentUser();
         }
 
         // Set empty cache so data isn't cached in tests

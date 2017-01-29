@@ -6,11 +6,13 @@ use FelixOnline\Exceptions\InternalException;
 /**
  * App class
  */
-class App implements \ArrayAccess
-{
+class App implements \ArrayAccess {
     protected static $instance = null;
     protected static $options = array();
     protected $container;
+
+    const MODE_HTTP = 0;
+    const MODE_CLI = 1;
 
     /**
      * Required options
@@ -38,10 +40,9 @@ class App implements \ArrayAccess
     /**
      * Initialize app
      */
-    public function run()
-    {
+    public function run() {
         if (!isset($this->container['env']) || is_null($this->container['env'])) {
-            $this->container['env'] = Environment::getInstance();
+            $this->container['env'] = new HttpEnvironment();
         }
 
         if (!isset($this->container['akismet']) || is_null($this->container['akismet'])) {
@@ -66,8 +67,12 @@ class App implements \ArrayAccess
             $this->container['cache'] = new \Stash\Pool($driver);
         }
 
-        if (!isset($this->container['currentuser']) || is_null($this->container['currentuser'])) {
-            $this->container['currentuser'] = new CurrentUser();
+        if (
+            !isset($this->container['currentuser'])
+            || is_null($this->container['currentuser'])
+            || !($this->container['currentuser'] instanceof AbstractCurrentUser)
+        ) {
+            $this->container['currentuser'] = new StubCurrentUser();
         }
 
         if (!isset($this->container['db']) || !($this->container['db'] instanceof \ezSQL_mysqli)) {
@@ -79,15 +84,26 @@ class App implements \ArrayAccess
         }
     }
 
+    public function getMode() {
+        if(php_sapi_name() == "cli") {
+            return self::MODE_CLI;
+        } else {
+            return self::MODE_HTTP;
+        }
+    }
+
+    public function isUnderTest() {
+        return $this->getOption('unit_tests');
+    }
+
     /**
      * Check that all required options are defined
      *
      * Throws Exception if option is not defined
      */
-    private function checkOptions($options)
-    {
+    private function checkOptions($options) {
         foreach($this->required as $req) {
-            if (!array_key_exists($req, $options)) {
+            if(!array_key_exists($req, $options)) {
                 throw new \Exception('"' . $req . '" option has not been defined');
             }
         }
@@ -98,9 +114,8 @@ class App implements \ArrayAccess
      *
      * @return instance
      */
-    public static function getInstance()
-    {
-        if (is_null(self::$instance)) {
+    public static function getInstance() {
+        if(is_null(self::$instance)) {
             throw new \Exception('App has not been initialised yet');
         }
         return self::$instance;
@@ -113,8 +128,7 @@ class App implements \ArrayAccess
      *
      * @return void
      */
-    public static function setInstance($instance)
-    {
+    public static function setInstance($instance) {
         self::$instance = $instance;
     }
 
@@ -126,8 +140,7 @@ class App implements \ArrayAccess
      *
      * @return mixed option
      */
-    public function getOption($key)
-    {
+    public function getOption($key) {
         if (!array_key_exists($key, self::$options)) {
             // if a default has been defined
             if (func_num_args() > 1) {
@@ -139,24 +152,20 @@ class App implements \ArrayAccess
         return self::$options[$key];
     }
 
-    public function offsetSet($offset, $value)
-    {
+    public function offsetSet($offset, $value) {
         $this->container[$offset] = $value;
     }
 
-    public function offsetExists($offset)
-    {
+    public function offsetExists($offset) {
         return isset($this->container[$offset]);
     }
 
-    public function offsetUnset($offset)
-    {
+    public function offsetUnset($offset) {
         unset($this->container[$offset]);
     }
 
-    public function offsetGet($offset)
-    {
-        if (!isset($this->container[$offset])) {
+    public function offsetGet($offset) {
+        if(!isset($this->container[$offset])) {
             throw new InternalException('Key "' . $offset . '" is not set');
         }
         return $this->container[$offset];

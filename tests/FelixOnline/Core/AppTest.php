@@ -27,7 +27,7 @@ class AppTest extends DatabaseTestCase {
 		$app['db'] = $db;
 
 		$app['safesql'] = new \SafeSQL_MySQLi($db->dbh);
-		$app['env'] = \FelixOnline\Core\Environment::mock();
+		$app['env'] = new \FelixOnline\Core\HttpEnvironment();
 
 		$session = $this->mock('FelixOnline\\Core\\Session')
 			->getId(1)
@@ -47,7 +47,8 @@ class AppTest extends DatabaseTestCase {
 
 	public function testApp() {
 		$app = $this->createApp(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 		$this->assertInstanceOf('FelixOnline\Core\App', $app);
 	}
@@ -56,14 +57,16 @@ class AppTest extends DatabaseTestCase {
 		define('CACHE_FOLDER', '.');
 
 		$app = $this->createApp(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 		$this->assertInstanceOf('FelixOnline\Core\App', $app);
 	}
 
 	public function testSingleton()	{
 		$app = $this->createApp(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$this->assertEquals($app, \FelixOnline\Core\App::getInstance());
@@ -91,7 +94,8 @@ class AppTest extends DatabaseTestCase {
 
 	public function testGetOption()	{
 		$app = $this->createApp(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$this->assertEquals($app->getOption('base_url'), 'foo');
@@ -99,7 +103,8 @@ class AppTest extends DatabaseTestCase {
 
 	public function testGetOptionDefault() {
 		$app = $this->createApp(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 		$this->assertEquals($app->getOption('foo', 'bar'), 'bar');
 	}
@@ -112,6 +117,7 @@ class AppTest extends DatabaseTestCase {
 
 		$app = $this->createApp(array(
 			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$app->getOption('bar');
@@ -126,7 +132,8 @@ class AppTest extends DatabaseTestCase {
 		);
 
 		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 		$app->run();
 	}
@@ -140,7 +147,8 @@ class AppTest extends DatabaseTestCase {
 		);
 
 		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 		$app['db'] = 'foo';
 		$app->run();
@@ -155,7 +163,8 @@ class AppTest extends DatabaseTestCase {
 		);
 
 		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$db = new \ezSQL_mysqli();
@@ -172,7 +181,8 @@ class AppTest extends DatabaseTestCase {
 		);
 
 		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo'
+			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$db = new \ezSQL_mysqli();
@@ -184,6 +194,7 @@ class AppTest extends DatabaseTestCase {
 	public function testQuery()	{
 		$app = $this->createApp(array(
 			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$this->assertEquals(
@@ -195,6 +206,7 @@ class AppTest extends DatabaseTestCase {
 	public function testNotSetException() {
 		$app = $this->createApp(array(
 			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$this->setExpectedException(
@@ -209,6 +221,7 @@ class AppTest extends DatabaseTestCase {
 	public function testUnset() {
 		$app = $this->createApp(array(
 			'base_url' => 'foo',
+            'unit_tests' => true
 		));
 
 		$app['foo'] = 'bar';
