@@ -25,3 +25,4 @@ notifications:
       - "chat.freenode.net#felixonline"
     on_success: change
     skip_join: true
+    on_failure: always
