@@ -25,7 +25,7 @@ abstract class AbstractCurrentUser {
     // Check hash
     public function verifyPassword(string $password) {
         if(password_verify($password, $this->getPasswordHash())) {
-            if(password_needs_rehash($password0, $this->getPasswordHash())) {
+            if(password_needs_rehash($password, $this->getPasswordHash())) {
                 $this->setPasswordHash($this->hashPassword($password));
                 $this->save();
 
