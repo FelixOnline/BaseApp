@@ -6,21 +6,27 @@
 namespace FelixOnline\Core;
 use FelixOnline\Exceptions\InternalException;
 
-class ResourceManager {
-    private $css = array(); // array of css files
-    private $js = array(); // array of js files
-    private $cssPath; // path for css files
-    private $jsPath; // path for JavaScript files
+use Assetic\Asset\AssetCollection;
+use Assetic\Asset\FileAsset;
+use Assetic\Asset\GlobAsset;
+use Assetic\Filter\LessphpFilter;
+use Assetic\Filter\ScssphpFilter;
+use Assetic\Filter\CssMinFilter;
+use Assetic\Filter\JSqueezeFilter;
 
-    function __construct($css, $js) {
+class ResourceManager {
+    private $css; // array of css files
+    private $js; // array of js files
+
+    function __construct($css = false, $js = false) {
         if($css) {
             $this->addCSS($css);
         }
         if($js) {
             $this->addJS($js);
         }
-        $this->cssPath = 'css/';
-        $this->jsPath = 'js/';
+        $this->css = array();
+        $this->js = array();
     }
 
     /*
@@ -33,9 +39,15 @@ class ResourceManager {
     public function addCSS($css) {
         if(is_array($css)) {
             foreach($css as $key => $value) {
-                array_push($this->css, $value);
+                if($this->isLess($css)) {
+                    $this->css[] = new FileAsset($css, array(LessphpFilter));
+                } elseif($this->isScss($css)) {
+                    $this->css[] = new FileAsset($css, array(ScssphpFilter));
+                } else {
+                    $this->css[] = new FileAsset($css);
+                }
             }
-            return $this->css;
+            return $this;
         } else {
             throw new InternalException("CSS files to add is not an array");
         }
@@ -51,9 +63,9 @@ class ResourceManager {
     public function addJS($js) {
         if(is_array($js)) {
             foreach($js as $key => $value) {
-                array_push($this->js, $value);
+                $this->js[] = new FileAsset($js);
             }
-            return $this->js;
+            return $this;
         } else {
             throw new InternalException("JS files to add is not an array");
         }
@@ -64,8 +76,8 @@ class ResourceManager {
      */
     public function replaceCSS($css) {
         if(is_array($css)) {
-            $this->css = $css;
-            return $this->css;
+            $this->css = array();
+            return $this->addCSS($css);
         } else {
             throw new InternalException("CSS files to add is not an array");
         }
@@ -76,69 +88,20 @@ class ResourceManager {
      */
     public function replaceJS($js) {
         if(is_array($js)) {
-            $this->js = $js;
-            return $this->js;
+            $this->js = array();
+            return $this->addJS($js);
         } else {
             throw new InternalException("JS files to add is not an array");
         }
     }
 
     /*
-     * Public: Get css files
+     * Public: Get built css files
      *
-     * Returns array of css files paths
+     * Returns css file path
      */
     public function getCSS() {
-        $data = array();
-        $min = array();
-        foreach($this->css as $key => $value) {
-            if($this->isExternal($value)) {
-                $data[$key] = $value;
-            } else {
-                if($this->isLess($value)) {
-                    $value = $this->processLess($value);
-                }
-                if(PRODUCTION_FLAG == true) {
-                    $min[] = $this->minify($value, 'css');
-                } else {
-                    $data[$key] = $this->getFilename($value, 'css');
-                }
-            }
-        }
-
-        if(PRODUCTION_FLAG == true) { // if in production
-            // concatenate minified files
-            $content = '';
-            $name = '';
-            foreach($min as $key => $value) {
-                $filename = strstr($value, '.', true);
-
-                $fileContent = file_get_contents($this->getFilename($value, 'css', 'dir'));
-
-                if($fileContent === false) {
-                    throw new InternalException('A minified CSS file does not exist when it should');
-                }
-
-                $content .= $fileContent;
-
-                if($key == 0) {
-                    $name .= $filename;
-                } else {
-                    $name .= '-'.$filename;
-                }
-            }
-
-            unset($fileContent);
-
-            if(!is_writable($this->getFilename($name.'.min.css', 'css', 'dir'))) {
-                throw new InternalException('The file '.$this->getFilename($name.'.min.css', 'css', 'dir').', or the folder it is in, is not writable.');
-            }
-
-            file_put_contents($this->getFilename($name.'.min.css', 'css', 'dir'), $content);
-
-            $data['min'] = $this->getFilename($name.'.min.css', 'css');
-        }
-        return $data;
+        return $this->build($this->css, 'css');
     }
 
     /*
@@ -147,15 +110,19 @@ class ResourceManager {
      * Returns array of js files paths
      */
     public function getJS() {
-        $data = array();
-        foreach($this->js as $key => $value) {
-            if($this->isExternal($value)) {
-                $data[$key] = $value;
+        // Strip out externals
+        $js = array();
+        $jsExt = array();
+
+        foreach($this->js as $jsItem) {
+            if($this->isExternal($jsItem)) {
+                $jsExt[] = $jsItem;
             } else {
-                $data[$key] = $this->getFilename($value, 'js');
+                $js[] = $jsItem;
             }
         }
-        return $data;
+
+        return array_merge($this->build($js, 'js'), $jsExt);
     }
 
     /*
@@ -168,6 +135,53 @@ class ResourceManager {
         } else {
             return false;
         }
+    }
+
+    /*
+     * Build data
+     */
+    private function build($data, $type) {
+        if($type != 'css' && $type != 'js') {
+            throw new InternalException('Trying to build invalid type');
+        }
+
+        if($type == 'css') {
+            $fileName = $this->getFilename('built.css', 'css', 'dir');
+            $fileName2 = $this->getFilename('built.css', 'css');
+
+            $filter = new CssMinFilter();
+        } else {
+            $fileName = $this->getFilename('built.css', 'js', 'dir');
+            $fileName2 = $this->getFilename('built.css', 'js');
+
+            $filter = new JSqueezeFilter();
+        }
+
+        if(PRODUCTION_FLAG == true) { // if in production
+            $data = new AssetCollection($data, array($filter));
+        } else {
+            $data = new AssetCollection($data);
+        }
+
+        // Abstract out
+        if(
+            (
+                PRODUCTION_FLAG == true &&
+                !file_exists($fileName) &&
+                // Age
+                true
+            ) || PRODUCTION_FLAG == false
+        ) {
+            $css = $css->dump();
+
+            if(!is_writable($fileName)) {
+                throw new InternalException('The file '.$fileName.', or the folder it is in, is not writable.');
+            }
+
+            file_put_contents($fileName, $content);
+        }
+
+        return $fileName2;
     }
 
     /*
@@ -184,10 +198,10 @@ class ResourceManager {
         }
         switch($type) {
             case 'css':
-                return $root.$this->cssPath.$file;
+                return $root.'/css'.$file;
                 break;
             case 'js':
-                return $root.$this->jsPath.$file;
+                return $root.'/js'.$file;
                 break;
         }
     }
@@ -204,64 +218,13 @@ class ResourceManager {
     }
 
     /*
-     * Process less file
-     *
-     * Returns compiled css filename
+     * If file is a less file
      */
-    private function processLess($lessfile) {
-        $filename = strstr($lessfile, '.', true);
-        $cssfile = $this->getFilename($filename.'.css', 'css', 'dir');
-
-        if(PRODUCTION_FLAG && file_exists($cssfile)) {
-            return $filename.'.css';
-        }
-
-        $parser = new \Less_Parser();
-        $parser->parseFile(dirname($cssfile).'/'.$lessfile, STANDARD_URL);
-        $css = $parser->getCss();
-
-        if(!is_writable($cssfile)) {
-            throw new InternalException('The file '.$cssfile.', or the folder it is in, is not writable.');
-        }
-
-        file_put_contents($cssfile, $css);
-        return $filename.'.css';
-    }
-
-    /*
-     * Minify files
-     *
-     * Returns minified file name
-     */
-    private function minify($file, $type) {
-        switch($type) {
-            case 'css':
-                // get filename on its own
-                $filename = strstr($file, '.', true);
-                $minfilename = $filename.'.min.css';
-
-                if(
-                    !file_exists($this->getFilename($minfilename, 'css', 'dir'))
-                    ||
-                    filemtime($this->getFilename($minfilename, 'css', 'dir'))
-                    <
-                    filemtime($this->getFilename($file, 'css', 'dir'))
-                ) {
-                    $cssfile = $this->getFilename($file, 'css', 'dir'); // get file location
-                    $min = \Minify_CSS_Compressor::process(file_get_contents($cssfile));
-
-                    if(!is_writable($minfilename)) {
-                        throw new InternalException('The file '.$minfilename.', or the folder it is in, is not writable.');
-                    }
-
-                    file_put_contents($this->getFilename($minfilename, 'css', 'dir'), $min);
-                }
-                return $minfilename;
-                break;
-            case 'js':
-                return $file; // not supported yet
-                break;
+    private function isScss($file) {
+        if(substr(strrchr($file,'.'),1) == 'scss') {
+            return true;
+        } else {
+            return false;
         }
     }
 }
-?>

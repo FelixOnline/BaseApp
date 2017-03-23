@@ -20,8 +20,12 @@
         "jv2222/ezsql": "dev-master",
         "tedivm/stash": "@stable",
         "swiftmailer/swiftmailer": "@stable",
-        "oyejorge/less.php": "@stable",
-        "mrclay/minify": "@stable"
+        "leafo/lessphp": "@stable",
+        "leafo/scssphp": "@stable",
+        "mrclay/minify": "@stable",
+        "kriswallsmith/assetic": "@stable",
+        "patchwork/jsqueeze": "@stable",
+        "natxet/CssMin": "^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable",
