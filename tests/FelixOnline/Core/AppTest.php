@@ -7,229 +7,229 @@ require_once __DIR__ . '/../../DatabaseTestCase.php';
  * therefore we don't extend AppTestCase.
  */
 class AppTest extends DatabaseTestCase {
-	use \Xpmock\TestCaseTrait;
+    use \Xpmock\TestCaseTrait;
 
-	public function createApp($config) {
-		$app = new \FelixOnline\Core\App($config);
+    public function createApp($config) {
+        $app = new \FelixOnline\Core\App($config);
 
-		$dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
-		$dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
-		$db = new \ezSQL_mysqli();
-		$db->quick_connect(
-			$dbuser,
-			$dbpass,
-			'test_media_felix',
-			'localhost',
-			3306,
-			'utf8'
-		);
-		$app['db'] = $db;
+        $db = new \ezSQL_mysqli();
+        $db->quick_connect(
+            $dbuser,
+            $dbpass,
+            'test_media_felix',
+            'localhost',
+            3306,
+            'utf8'
+        );
+        $app['db'] = $db;
 
-		$app['safesql'] = new \SafeSQL_MySQLi($db->dbh);
-		$app['env'] = new \FelixOnline\Core\HttpEnvironment();
+        $app['safesql'] = new \SafeSQL_MySQLi($db->dbh);
+        $app['env'] = new \FelixOnline\Core\HttpEnvironment();
 
-		$session = $this->mock('FelixOnline\\Core\\Session')
-			->getId(1)
-			->start(1)
-			->reset()
-			->new();
+        $session = $this->mock('FelixOnline\\Core\\Session')
+            ->getId(1)
+            ->start(1)
+            ->reset()
+            ->new();
 
-		$this->reflect($session)
-			->__set('session', array());
+        $this->reflect($session)
+            ->__set('session', array());
 
-		$app['env']['session'] = $session;
+        $app['env']['session'] = $session;
 
-		$app->run();
+        $app->run();
 
-		return $app;
-	}
+        return $app;
+    }
 
-	public function testApp() {
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+    public function testApp() {
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
-		$this->assertInstanceOf('FelixOnline\Core\App', $app);
-	}
+        ));
+        $this->assertInstanceOf('FelixOnline\Core\App', $app);
+    }
 
-	public function testAppWithCacheFolder() {
-		define('CACHE_FOLDER', '.');
+    public function testAppWithCacheFolder() {
+        define('CACHE_FOLDER', '.');
 
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
-		$this->assertInstanceOf('FelixOnline\Core\App', $app);
-	}
+        ));
+        $this->assertInstanceOf('FelixOnline\Core\App', $app);
+    }
 
-	public function testSingleton()	{
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+    public function testSingleton()    {
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$this->assertEquals($app, \FelixOnline\Core\App::getInstance());
-	}
+        $this->assertEquals($app, \FelixOnline\Core\App::getInstance());
+    }
 
-	public function testAccessBeforeInit() {
-		\FelixOnline\Core\App::setInstance(null);
+    public function testAccessBeforeInit() {
+        \FelixOnline\Core\App::setInstance(null);
 
-		$this->setExpectedException(
-			'Exception',
-			'App has not been initialised yet'
-		);
+        $this->setExpectedException(
+            'Exception',
+            'App has not been initialised yet'
+        );
 
-		$app = \FelixOnline\Core\App::getInstance();
-	}
+        $app = \FelixOnline\Core\App::getInstance();
+    }
 
-	public function testRequiredOptions() {
-		$this->setExpectedException(
-			'Exception',
-			'"base_url" option has not been defined'
-		);
+    public function testRequiredOptions() {
+        $this->setExpectedException(
+            'Exception',
+            '"base_url" option has not been defined'
+        );
 
-		$app = $this->createApp(array());
-	}
+        $app = $this->createApp(array());
+    }
 
-	public function testGetOption()	{
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+    public function testGetOption()    {
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$this->assertEquals($app->getOption('base_url'), 'foo');
-	}
+        $this->assertEquals($app->getOption('base_url'), 'foo');
+    }
 
-	public function testGetOptionDefault() {
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+    public function testGetOptionDefault() {
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
-		$this->assertEquals($app->getOption('foo', 'bar'), 'bar');
-	}
+        ));
+        $this->assertEquals($app->getOption('foo', 'bar'), 'bar');
+    }
 
-	public function testGetOptionException() {
-		$this->setExpectedException(
-			'FelixOnline\Exceptions\InternalException',
-			'Option "bar" has not been set'
-		);
+    public function testGetOptionException() {
+        $this->setExpectedException(
+            'FelixOnline\Exceptions\InternalException',
+            'Option "bar" has not been set'
+        );
 
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$app->getOption('bar');
-	}
+        $app->getOption('bar');
+    }
 
-	public function testRunNoDbException() {
-		\FelixOnline\Core\App::setInstance(null);
+    public function testRunNoDbException() {
+        \FelixOnline\Core\App::setInstance(null);
 
-		$this->setExpectedException(
-			'Exception',
-			'No db setup'
-		);
+        $this->setExpectedException(
+            'Exception',
+            'No db setup'
+        );
 
-		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo',
+        $app = new \FelixOnline\Core\App(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
-		$app->run();
-	}
+        ));
+        $app->run();
+    }
 
-	public function testRunWrongDbTypeException() {
-		\FelixOnline\Core\App::setInstance(null);
+    public function testRunWrongDbTypeException() {
+        \FelixOnline\Core\App::setInstance(null);
 
-		$this->setExpectedException(
-			'Exception',
-			'No db setup'
-		);
+        $this->setExpectedException(
+            'Exception',
+            'No db setup'
+        );
 
-		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo',
+        $app = new \FelixOnline\Core\App(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
-		$app['db'] = 'foo';
-		$app->run();
-	}
+        ));
+        $app['db'] = 'foo';
+        $app->run();
+    }
 
-	public function testRunNoSafesqlException()	{
-		\FelixOnline\Core\App::setInstance(null);
+    public function testRunNoSafesqlException()    {
+        \FelixOnline\Core\App::setInstance(null);
 
-		$this->setExpectedException(
-			'Exception',
-			'No safesql setup'
-		);
+        $this->setExpectedException(
+            'Exception',
+            'No safesql setup'
+        );
 
-		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo',
+        $app = new \FelixOnline\Core\App(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$db = new \ezSQL_mysqli();
-		$app['db'] = $db;
-		$app->run();
-	}
+        $db = new \ezSQL_mysqli();
+        $app['db'] = $db;
+        $app->run();
+    }
 
-	public function testRunNoWrongSafesqlException() {
-		\FelixOnline\Core\App::setInstance(null);
+    public function testRunNoWrongSafesqlException() {
+        \FelixOnline\Core\App::setInstance(null);
 
-		$this->setExpectedException(
-			'Exception',
-			'No safesql setup'
-		);
+        $this->setExpectedException(
+            'Exception',
+            'No safesql setup'
+        );
 
-		$app = new \FelixOnline\Core\App(array(
-			'base_url' => 'foo',
+        $app = new \FelixOnline\Core\App(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$db = new \ezSQL_mysqli();
-		$app['db'] = $db;
-		$app['safesql'] = 'foo';
-		$app->run();
-	}
+        $db = new \ezSQL_mysqli();
+        $app['db'] = $db;
+        $app['safesql'] = 'foo';
+        $app->run();
+    }
 
-	public function testQuery()	{
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+    public function testQuery()    {
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$this->assertEquals(
-			"SELECT id FROM foo",
-			$app['safesql']->query("SELECT id FROM %s", array("foo"))
-		);
-	}
+        $this->assertEquals(
+            "SELECT id FROM foo",
+            $app['safesql']->query("SELECT id FROM %s", array("foo"))
+        );
+    }
 
-	public function testNotSetException() {
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+    public function testNotSetException() {
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$this->setExpectedException(
-			'FelixOnline\Exceptions\InternalException',
-			'Key "foo" is not set'
-		);
+        $this->setExpectedException(
+            'FelixOnline\Exceptions\InternalException',
+            'Key "foo" is not set'
+        );
 
-		// Try and access key that doesn't exist
-		$app['foo'];
-	}
+        // Try and access key that doesn't exist
+        $app['foo'];
+    }
 
-	public function testUnset() {
-		$app = $this->createApp(array(
-			'base_url' => 'foo',
+    public function testUnset() {
+        $app = $this->createApp(array(
+            'base_url' => 'foo',
             'unit_tests' => true
-		));
+        ));
 
-		$app['foo'] = 'bar';
+        $app['foo'] = 'bar';
 
-		$this->assertTrue(isset($app['foo']));
+        $this->assertTrue(isset($app['foo']));
 
-		unset($app['foo']);
+        unset($app['foo']);
 
-		$this->assertFalse(isset($app['foo']));
-	}
+        $this->assertFalse(isset($app['foo']));
+    }
 }

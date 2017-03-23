@@ -5,26 +5,25 @@ require_once __DIR__ . '/../../../AppTestCase.php';
 
 class ForeignKeyTest extends AppTestCase
 {
-	public $fixtures = array(
-		'images',
-		'users',
-	);
+    public $fixtures = array(
+        'audit_log'
+    );
 
-	public function testGetValue()
-	{
-		$image = new \FelixOnline\Core\Image(23);
+    public function testGetValue()
+    {
+        $image = new \FelixOnline\Core\AuditLog(2);
 
-		$key = (new \FelixOnline\Core\Type\ForeignKey('FelixOnline\Core\Image', array()))->setValue(23);
+        $key = (new \FelixOnline\Core\Type\ForeignKey('FelixOnline\Core\AuditLog', array()))->setValue(2);
 
-		$this->assertEquals($key->getValue(), $image);
-	}
+        $this->assertEquals($key->getValue(), $image);
+    }
 
-	public function testSetValue()
-	{
-		$image = new \FelixOnline\Core\Image(23);
+    public function testSetValue()
+    {
+        $image = new \FelixOnline\Core\AuditLog(2);
 
-		$key = (new \FelixOnline\Core\Type\ForeignKey('FelixOnline\Core\Image', array()))->setValue($image);
+        $key = (new \FelixOnline\Core\Type\ForeignKey('FelixOnline\Core\AuditLog', array()))->setValue($image);
 
-		$this->assertEquals($key->getValue(), $image);
-	}
+        $this->assertEquals($key->getValue(), $image);
+    }
 }
