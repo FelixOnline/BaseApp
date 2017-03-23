@@ -79,21 +79,28 @@ class BaseManager
      */
     protected $allowDeleted = false;
 
-    public static function build($class, $table, $pk = null)
-    {
+    public static function build($class, $table = null, $pk = null) {
         $manager = new self();
         $manager->class = $class;
-        $manager->table = $table;
+
+        if (!is_null($table)) {
+            $manager->table = $table;
+        } else {
+            $temp = new $class;
+            $manager->table = $temp->dbtable;
+        }
 
         if (!is_null($pk)) {
             $manager->pk = $pk;
+        } else {
+            $temp = new $class;
+            $manager->pk = $temp->pk;
         }
 
         return $manager;
     }
 
-    public function allowDeleted()
-    {
+    public function allowDeleted() {
         $this->allowDeleted = true;
 
         return $this;
@@ -102,8 +109,7 @@ class BaseManager
     /**
      * Get all objects
      */
-    public function all()
-    {
+    public function all() {
         $_filters = $this->filters; // store filters
 
         if(!$this->allowDeleted) {
@@ -122,13 +128,11 @@ class BaseManager
     /**
      * Filter objects
      */
-    public function filter($filter, $values = array(), $or = array())
-    {
+    public function filter($filter, $values = array(), $or = array()) {
         return $this->filterOnSpecifiedTable($this->table, $filter, $values, $or);
     }
 
-    public function filterOnSpecifiedTable($table, $filter, $values = array(), $or = array())
-    {
+    public function filterOnSpecifiedTable($table, $filter, $values = array(), $or = array()) {
         $app = \FelixOnline\Core\App::getInstance();
 
         if (!is_array($values)) {
@@ -161,8 +165,7 @@ class BaseManager
     /**
      * Order objects
      */
-    public function order($columns, $order)
-    {
+    public function order($columns, $order) {
         $colArray = array();
 
         if(is_array($columns)) {
@@ -180,8 +183,7 @@ class BaseManager
     /**
      * Order objects - multiple columns with different sort orders
      */
-    public function multiOrder($columns)
-    {
+    public function multiOrder($columns) {
         $this->order = $columns;
         return $this;
     }
@@ -189,8 +191,7 @@ class BaseManager
     /**
      * Add limit to query
      */
-    public function limit($offset, $number)
-    {
+    public function limit($offset, $number) {
         $this->limit = array($offset, $number);
         return $this;
     }
@@ -214,8 +215,7 @@ class BaseManager
     /**
      * Add grouping to query
      */
-    public function group($group)
-    {
+    public function group($group) {
         if(!is_array($group)) {
             $this->group = array($group);
         } else {
@@ -228,8 +228,7 @@ class BaseManager
     /**
      * Get count
      */
-    public function count()
-    {
+    public function count() {
         $sql = $this->getCountSql();
         $results = $this->query("SELECT COUNT(*) AS count FROM (".$sql.") AS result");
 
@@ -239,8 +238,7 @@ class BaseManager
     /**
      * Get SQL for Count
      */
-    public function getCountSQL()
-    {
+    public function getCountSQL() {
         $statement = [];
 
         if($this->distinct) {
@@ -272,8 +270,7 @@ class BaseManager
     /**
      * Get values
      */
-    public function values($distinct = false)
-    {
+    public function values($distinct = false) {
         $this->distinct = $distinct;
 
         $sql = $this->getSQL();
@@ -292,8 +289,7 @@ class BaseManager
     /**
      * Get sql
      */
-    public function getSQL()
-    {
+    public function getSQL() {
         $statement = [];
 
         if($this->distinct) {
@@ -334,8 +330,7 @@ class BaseManager
     /**
      * Get one
      */
-    public function one()
-    {
+    public function one() {
         $_limit = $this->limit;
         $this->limit = null;
 
@@ -356,8 +351,7 @@ class BaseManager
     /**
      * Join managers together
      */
-    public function join(BaseManager $manager, $type = null, $column = null, $column_right = null)
-    {
+    public function join(BaseManager $manager, $type = null, $column = null, $column_right = null) {
         $this->joins[$manager->table] = array(
             'manager' => $manager,
             'type' => $type,
@@ -370,8 +364,7 @@ class BaseManager
     /**
      * Set cache status
      */
-    public function cache($flag, $expiry = null)
-    {
+    public function cache($flag, $expiry = null) {
         $this->cache = (boolean) $flag;
 
         if (!is_null($expiry)) {
@@ -383,16 +376,14 @@ class BaseManager
     /**
      * From
      */
-    protected function getFrom()
-    {
+    protected function getFrom() {
         return "FROM `" . $this->table . "`";
     }
 
     /**
      * Get Join
      */
-    protected function getJoin()
-    {
+    protected function getJoin() {
         if (!empty($this->joins)) {
             $joins = array();
             foreach ($this->joins as $join) {
@@ -433,8 +424,7 @@ class BaseManager
     /**
      * Where
      */
-    protected function getWhere()
-    {
+    protected function getWhere() {
         $filters = $this->getWhereAsArray();
 
         $string = '';
@@ -479,8 +469,7 @@ class BaseManager
     /**
      * Order
      */
-    protected function getOrder($tableless = false)
-    {
+    protected function getOrder($tableless = false) {
         if ($this->order) {
             $order = "ORDER BY ";
 
@@ -506,8 +495,7 @@ class BaseManager
     /**
      * Random Order
      */
-    protected function getRandom()
-    {
+    protected function getRandom() {
         if ($this->random) {
             $random = "ORDER BY RAND() ASC";
 
@@ -519,8 +507,7 @@ class BaseManager
     /**
      * Group
      */
-    protected function getGroup($tableless = false)
-    {
+    protected function getGroup($tableless = false) {
         if ($this->group) {
             $group = "GROUP BY ";
 
@@ -544,8 +531,7 @@ class BaseManager
     /**
      * Get column reference
      */
-    protected function getColumnReference($column, $tableless)
-    {
+    protected function getColumnReference($column, $tableless) {
         if($tableless) {
             return $column;
         }
@@ -561,8 +547,7 @@ class BaseManager
     /**
      * Limit
      */
-    protected function getLimit()
-    {
+    protected function getLimit() {
         if ($this->limit) {
             return "LIMIT " . implode(", ", $this->limit);
         }
@@ -572,8 +557,7 @@ class BaseManager
     /**
      * Query sql
      */
-    protected function query($sql)
-    {
+    protected function query($sql) {
         $GLOBALS['current_sql'] = $sql;
 
         $app = \FelixOnline\Core\App::getInstance();
@@ -617,8 +601,7 @@ class BaseManager
     /**
      * Map result to models
      */
-    protected function resultToModels($result)
-    {
+    protected function resultToModels($result) {
         $models = array();
         foreach ($result as $r) {
             $pk = $r->{$this->pk};

@@ -19,6 +19,15 @@ class BaseManagerTest extends AppTestCase {
         return $manager;
     }
 
+    public function testBuildManagerWithNull() {
+        $manager = FelixOnline\Core\BaseManager::build(
+            'FelixOnline\\Core\\AuditLog');
+
+        $this->assertEquals($manager->table, 'audit_log');
+        $this->assertEquals($manager->pk, 'id');
+    }
+
+
     public function testSQL() {
         $manager = $this->getManager();
 
