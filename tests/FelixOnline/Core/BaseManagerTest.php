@@ -3,14 +3,13 @@
 require_once __DIR__ . '/../../AppTestCase.php';
 //require_once __DIR__ . '/../../utilities.php';
 
-class BaseManagerTest extends AppTestCase
-{
+class BaseManagerTest extends AppTestCase {
     public $fixtures = array(
-        'audit_log'
+        'audit_log',
+        'article_authors'
     );
 
-    public function getManager()
-    {
+    public function getManager() {
         $manager = $this->mock('FelixOnline\\Core\\BaseManager')
         ->new();
 
@@ -20,29 +19,27 @@ class BaseManagerTest extends AppTestCase
         return $manager;
     }
 
-    public function testSQL()
-    {
+    public function testSQL() {
         $manager = $this->getManager();
 
         $manager->filter("table IS NOT NULL")
-        ->filter("key IS NOT NULL")
-        ->order('id', 'DESC')
-        ->limit(0, 10);
+                ->filter("key IS NOT NULL")
+                ->order('id', 'DESC')
+                ->limit(0, 10);
 
         $sql = $manager->getSQL();
 
         $this->assertEquals($sql, '(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        WHERE `audit_log`.table IS NOT NULL
-        AND `audit_log`.key IS NOT NULL
-        AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        )
-        ORDER BY `audit_log`.`id` DESC
-        LIMIT 0, 10');
+FROM `audit_log`
+WHERE `audit_log`.table IS NOT NULL
+AND `audit_log`.key IS NOT NULL
+AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+)
+ORDER BY `audit_log`.`id` DESC
+LIMIT 0, 10');
     }
 
-    public function testAll()
-    {
+    public function testAll() {
         $manager = $this->getManager();
 
         $all = $manager->all();
@@ -51,20 +48,18 @@ class BaseManagerTest extends AppTestCase
         $this->assertInstanceOf('FelixOnline\Core\AuditLog', $all[0]);
     }
 
-    public function testFilter()
-    {
+    public function testFilter() {
         $manager = $this->getManager();
 
         $filtered = $manager->filter('action = "create"')
-        ->filter('`id` IN (1, 2)')
-        ->values();
+                            ->filter('`id` IN (1, 2)')
+                            ->values();
 
         $this->assertCount(2, $filtered);
         $this->assertInstanceOf('FelixOnline\Core\AuditLog', $filtered[0]);
     }
 
-    public function testFilterParams()
-    {
+    public function testFilterParams() {
         $manager = $this->getManager();
 
         $manager->filter('table = %i', array(1));
@@ -72,14 +67,13 @@ class BaseManagerTest extends AppTestCase
         $sql = $manager->getSQL();
 
         $this->assertEquals($sql, '(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        WHERE `audit_log`.table = 1
-        AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        )');
+FROM `audit_log`
+WHERE `audit_log`.table = 1
+AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+)');
     }
 
-    public function testFilterParamsException()
-    {
+    public function testFilterParamsException() {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -89,13 +83,12 @@ class BaseManagerTest extends AppTestCase
         $manager->filter('category = %i', 1);
     }
 
-    public function testOrder()
-    {
+    public function testOrder() {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
-        ->filter('`id` IN (1, 2)')
-        ->order('id', 'ASC');
+                         ->filter('`id` IN (1, 2)')
+                         ->order('id', 'ASC');
 
         $results = $query->values();
 
@@ -104,8 +97,7 @@ class BaseManagerTest extends AppTestCase
         $this->assertEquals($results[0]->getId(), 1);
     }
 
-    public function testOrderMultiple()
-    {
+    public function testOrderMultiple() {
         $manager = $this->getManager();
 
         $query = $manager->order(array('id', 'key'), 'DESC');
@@ -113,14 +105,13 @@ class BaseManagerTest extends AppTestCase
         $sql = $manager->getSQL();
 
         $this->assertEquals($sql, "(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        )
-        ORDER BY `audit_log`.`id` DESC, `audit_log`.`key` DESC");
+FROM `audit_log`
+WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+)
+ORDER BY `audit_log`.`id` DESC, `audit_log`.`key` DESC");
     }
 
-    public function testOrderWithTable()
-    {
+    public function testOrderWithTable() {
         $manager = $this->getManager();
 
         $query = $manager->order('another_table.id', 'DESC');
@@ -128,14 +119,13 @@ class BaseManagerTest extends AppTestCase
         $sql = $manager->getSQL();
 
         $this->assertEquals($sql, "(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        )
-        ORDER BY another_table.id DESC");
+FROM `audit_log`
+WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+)
+ORDER BY another_table.id DESC");
     }
 
-    public function testLimit()
-    {
+    public function testLimit() {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
@@ -148,8 +138,7 @@ class BaseManagerTest extends AppTestCase
         $this->assertCount(1, $results);
     }
 
-    public function testCount()
-    {
+    public function testCount() {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
@@ -161,8 +150,7 @@ class BaseManagerTest extends AppTestCase
         $this->assertEquals($count, 2);
     }
 
-    public function testCountWithLimit()
-    {
+    public function testCountWithLimit() {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
@@ -175,8 +163,7 @@ class BaseManagerTest extends AppTestCase
         $this->assertEquals($count, 2);
     }
 
-    public function testQueryExceptionsBadQuery()
-    {
+    public function testQueryExceptionsBadQuery() {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -185,8 +172,7 @@ class BaseManagerTest extends AppTestCase
         $manager->filter('not valid sql')->values();
     }
 
-    public function testQueryNoResults()
-    {
+    public function testQueryNoResults() {
         $manager = $this->getManager();
 
         $null = $manager->filter('id = 0')->values();
@@ -194,18 +180,16 @@ class BaseManagerTest extends AppTestCase
         $this->assertNull($null);
     }
 
-    public function testGetOne()
-    {
+    public function testGetOne() {
         $manager = $this->getManager();
 
         $one = $manager->filter('id = %i', array(1))
-        ->one();
+                       ->one();
 
         $this->assertInstanceOf('FelixOnline\Core\AuditLog', $one);
     }
 
-    public function testGetOneMoreThanOne()
-    {
+    public function testGetOneMoreThanOne() {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -214,12 +198,11 @@ class BaseManagerTest extends AppTestCase
         );
 
         $one = $manager->filter('action = "create"')
-        ->filter('`id` IN (1, 2)')
-        ->one();
+                       ->filter('`id` IN (1, 2)')
+                       ->one();
     }
 
-    public function testGetOneException()
-    {
+    public function testGetOneException() {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -229,8 +212,7 @@ class BaseManagerTest extends AppTestCase
         $manager->filter('id = 0')->one();
     }
 
-    public function testJoin()
-    {
+    public function testJoin() {
         $m1 = $this->getManager();
         $m1->filter('date < "2010-12-31 23:59:59"');
 
@@ -247,19 +229,18 @@ class BaseManagerTest extends AppTestCase
         $sql = $m1->getSQL();
 
         $this->assertEquals($sql, '(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        JOIN `article_author` ON ( `audit_log`.`id` = `article_author`.`article` )
+FROM `audit_log`
+JOIN `article_author` ON ( `audit_log`.`id` = `article_author`.`article` )
 
-        WHERE `audit_log`.date < "2010-12-31 23:59:59"
-        AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        AND `article_author`.author = "felix"
-        AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
-        )
-        ORDER BY `audit_log`.`id` ASC');
+WHERE `audit_log`.date < "2010-12-31 23:59:59"
+AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+AND `article_author`.author = "felix"
+AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
+)
+ORDER BY `audit_log`.`id` ASC');
     }
 
-    public function testNestedJoin()
-    {
+    public function testNestedJoin() {
         $m1 = $this->getManager();
         $m1->filter('date < "2010-12-31 23:59:59"');
 
@@ -285,22 +266,21 @@ class BaseManagerTest extends AppTestCase
         $sql = $m1->getSQL();
 
         $this->assertEquals($sql, '(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        JOIN `category` ON ( `audit_log`.`category` = `category`.`id` )
-        JOIN `category_author` ON ( `category`.`id` = `category_author`.`category` )
+FROM `audit_log`
+JOIN `category` ON ( `audit_log`.`category` = `category`.`id` )
+JOIN `category_author` ON ( `category`.`id` = `category_author`.`category` )
 
-        WHERE `audit_log`.date < "2010-12-31 23:59:59"
-        AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        AND `category`.id = "1"
-        AND (`category`.deleted = 0 OR `category`.deleted IS NULL)
-        AND `category_author`.user = "pk1811"
-        AND (`category_author`.deleted = 0 OR `category_author`.deleted IS NULL)
-        )
-        ORDER BY `audit_log`.`id` ASC');
+WHERE `audit_log`.date < "2010-12-31 23:59:59"
+AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+AND `category`.id = "1"
+AND (`category`.deleted = 0 OR `category`.deleted IS NULL)
+AND `category_author`.user = "pk1811"
+AND (`category_author`.deleted = 0 OR `category_author`.deleted IS NULL)
+)
+ORDER BY `audit_log`.`id` ASC');
     }
 
-    public function testLeftJoin()
-    {
+    public function testLeftJoin() {
         $m1 = $this->getManager();
         $m2 = $this->getManager();
 
@@ -314,17 +294,16 @@ class BaseManagerTest extends AppTestCase
         $sql = $m1->getSQL();
 
         $this->assertEquals($sql, '(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        LEFT JOIN `article_author` ON ( `audit_log`.`id` = `article_author`.`article` )
+FROM `audit_log`
+LEFT JOIN `article_author` ON ( `audit_log`.`id` = `article_author`.`article` )
 
-        WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        AND `article_author`.author = "felix"
-        AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
-        )');
+WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+AND `article_author`.author = "felix"
+AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
+)');
     }
 
-    public function testLeftJoinSpecificColumn()
-    {
+    public function testLeftJoinSpecificColumn() {
         $m1 = $this->getManager();
         $m2 = $this->getManager();
 
@@ -338,17 +317,16 @@ class BaseManagerTest extends AppTestCase
         $sql = $m1->getSQL();
 
         $this->assertEquals($sql, '(SELECT `audit_log`.`id`
-        FROM `audit_log`
-        LEFT JOIN `article_author` ON ( `audit_log`.`TEST` = `article_author`.`article` )
+FROM `audit_log`
+LEFT JOIN `article_author` ON ( `audit_log`.`TEST` = `article_author`.`article` )
 
-        WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
-        AND `article_author`.author = "felix"
-        AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
-        )');
+WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
+AND `article_author`.author = "felix"
+AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
+)');
     }
 
-    public function testJoinCount()
-    {
+    public function testJoinCount() {
         $m1 = $this->getManager();
         $m1->filter('action = "create"');
 
@@ -367,17 +345,19 @@ class BaseManagerTest extends AppTestCase
         $this->assertEquals($count, 2);
     }
 
-    public function testBuild()
-    {
-        $manager = \FelixOnline\Core\BaseManager::build('FelixOnline\Core\Article', 'article', 'id');
+    public function testBuild() {
+        $manager = \FelixOnline\Core\BaseManager::build(
+            'FelixOnline\Core\Article',
+            'article',
+            'id'
+        );
 
         $this->assertEquals($manager->class, 'FelixOnline\Core\Article');
         $this->assertEquals($manager->table, 'article');
         $this->assertEquals($manager->pk, 'id');
     }
 
-    public function testCache()
-    {
+    public function testCache() {
         $app = \FelixOnline\Core\App::getInstance();
 
         $manager = $this->getManager();
