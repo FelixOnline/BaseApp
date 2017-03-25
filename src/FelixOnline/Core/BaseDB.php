@@ -19,27 +19,26 @@ class BaseDB extends BaseModel
     private $new;
     private $dontlog;
 
-    function __construct($fields, $id = null, $dbtable = null, $dontlog = false, $rowData = null)
-    {
+    function __construct($fields, $id = null, $dbtable = null, $dontlog = false, $rowData = null) {
         $app = App::getInstance();
 
-        if (!is_null($dbtable)) {
+        if(!is_null($dbtable)) {
             $this->dbtable = $dbtable;
         }
 
         $this->dontlog = $dontlog;
 
-        if (!is_array($fields) || empty($fields)) {
+        if(!is_array($fields) || empty($fields)) {
             throw new InternalException('No fields defined');
         }
 
-        if (array_key_exists('deleted', $fields)) {
+        if(array_key_exists('deleted', $fields)) {
             throw new InternalException('The column "deleted" is reserved by the database layer, and should not be specified.');
         }
 
         $fields['deleted'] = new Type\BooleanField();
 
-        if (!$this->dbtable) {
+        if(!$this->dbtable) {
             throw new InternalException('No table specified');
         }
 
@@ -47,7 +46,7 @@ class BaseDB extends BaseModel
 
         $this->new = true;
 
-        if (!is_null($id)) {
+        if(!is_null($id)) {
             $this->constructorId = $id;
 
             $fields[$this->pk]->setValue($id);
@@ -67,10 +66,10 @@ class BaseDB extends BaseModel
             $fields['deleted']->setValue(false);
         }
 
-        // PHP passes all objects by refernce so we need to clone the fields
+        // PHP passes all objects by reference so we need to clone the fields
         // so that the initial fields don't get updated when the fields change
         $_fields = array();
-        foreach ($fields as $k => $f) {
+        foreach($fields as $k => $f) {
             $_fields[$k] = clone $f;
         }
         $this->initialFields = $_fields;
@@ -93,14 +92,14 @@ class BaseDB extends BaseModel
         $item = $this->getCache($fields[$this->pk]);
         $results = $item->get(\Stash\Invalidation::PRECOMPUTE, 300);
 
-        if ($item->isMiss()) {
+        if($item->isMiss()) {
             $results = $app['db']->get_row($sql);
 
-            if ($app['db']->last_error) {
+            if($app['db']->last_error) {
                 throw new SQLException($app['db']->last_error, $app['db']->captured_errors);
             }
 
-            if (is_null($results)) {
+            if(is_null($results)) {
                 throw new ModelNotFoundException('No model in database', $this->dbtable, $this->constructorId);
             }
 
@@ -115,8 +114,7 @@ class BaseDB extends BaseModel
      *
      * pk - primary key column
      */
-    protected function getCache($pk)
-    {
+    protected function getCache($pk) {
         $app = App::getInstance();
         return $app['cache']->getItem($this->dbtable.'/'.$pk->getValue());
     }
@@ -124,12 +122,11 @@ class BaseDB extends BaseModel
     /**
      * Public: Delete the model. Restores instance of model back to if it was created with no ID
      */
-    public function delete()
-    {
+    public function delete() {
         $app = App::getInstance();
 
         // update model
-        if ($this->pk && $this->getPk()->getValue()) {
+        if($this->pk && $this->getPk()->getValue()) {
             $this->setDeleted(true)->save();
 
             // clear cache
@@ -150,12 +147,11 @@ class BaseDB extends BaseModel
     /**
      * Public: Actually delete the model (i.e. DELETE FROM query). Restores instance of model back to if it was created with no ID
      */
-    public function purge($reason)
-    {
+    public function purge($reason) {
         $app = App::getInstance();
 
         // update model
-        if ($this->pk && $this->getPk()->getValue()) {
+        if($this->pk && $this->getPk()->getValue()) {
             $this->log('purge', "**PURGED FROM DATABASE** Reason: ".$reason);
 
             $sql = $app['safesql']->query("DELETE FROM ".$this->dbtable." WHERE ".$this->pk." = '%s';",
@@ -188,25 +184,24 @@ class BaseDB extends BaseModel
      *      $obj->setContent('hello');
      *      $obj->save();
      */
-    public function save()
-    {
+    public function save() {
         $app = App::getInstance();
 
         // update model
-        if ($this->getPk()->getValue() && !$this->new) {
+        if($this->getPk()->getValue() && !$this->new) {
             // Determine what has been modified
             $changed = array();
-            foreach ($this->initialFields as $column => $field) {
-                if ($this->fields[$column]->getRawValue() !== $field->getRawValue()) {
+            foreach($this->initialFields as $column => $field) {
+                if($this->fields[$column]->getRawValue() !== $field->getRawValue()) {
                     $changed[$column] = $this->fields[$column];
                 }
             }
 
-            if (!empty($changed)) {
+            if(!empty($changed)) {
                 $sql = $this->constructUpdateSQL($changed, $this->fields);
 
                 $app['db']->query($sql);
-                if ($app['db']->last_error) {
+                if($app['db']->last_error) {
                     throw new SQLException($app['db']->last_error, $app['db']->captured_errors);
                 }
 
@@ -222,13 +217,13 @@ class BaseDB extends BaseModel
             $sql = $this->constructInsertSQL($this->fields);
 
             $app['db']->query($sql);
-            if ($app['db']->last_error) {
+            if($app['db']->last_error) {
                 throw new SQLException($app['db']->last_error, $app['db']->captured_errors);
             }
 
             $this->pk = $this->findPk($this->fields);
 
-            if ($app['db']->insert_id) {
+            if($app['db']->insert_id) {
                 $this->fields[$this->pk]->setValue($app['db']->insert_id);
             }
 
@@ -246,8 +241,7 @@ class BaseDB extends BaseModel
     /**
      * Construct the select sql to retrive model from db
      */
-    public function constructSelectSQL($fields)
-    {
+    public function constructSelectSQL($fields) {
         $sql = array();
 
         $sql[] = "SELECT";
@@ -263,8 +257,7 @@ class BaseDB extends BaseModel
     /**
      * Public: Construct SQL
      */
-    public function constructInsertSQL($fields)
-    {
+    public function constructInsertSQL($fields) {
         $sql = array();
 
         $sql[] = "INSERT INTO";
@@ -294,8 +287,7 @@ class BaseDB extends BaseModel
     /**
      * Public: Construct update SQL
      */
-    public function constructUpdateSQL($changed, $fields)
-    {
+    public function constructUpdateSQL($changed, $fields) {
         $sql = array();
 
         $sql[] = "UPDATE";
@@ -316,18 +308,17 @@ class BaseDB extends BaseModel
     /**
      * Find pk
      */
-    private function findPk(&$fields)
-    {
+    private function findPk(&$fields) {
         $pk = null;
-        foreach ($fields as $column => $field) {
-            if ($field->config['primary'] == true) {
+        foreach($fields as $column => $field) {
+            if($field->config['primary'] == true) {
                 $pk = $column;
                 break;
             }
         }
 
         // If there isn't a primary key defined then add a default one
-        if (is_null($pk)) {
+        if(is_null($pk)) {
             $pk = 'id';
             $fields[$pk] = new Type\IntegerField(array('primary' => true));
         }
@@ -338,19 +329,17 @@ class BaseDB extends BaseModel
     /**
      * Get pk
      */
-    public function getPk()
-    {
+    public function getPk() {
         return $this->fields[$this->pk];
     }
 
     /**
      * Get data
      */
-    public function getData()
-    {
+    public function getData() {
         $data = array();
         foreach($this->fields as $key => $field) {
-            if ($field instanceof Type\ForeignKey) { // foreign key exception
+            if($field instanceof Type\ForeignKey) { // foreign key exception
                 $data[$key] = $field->getRawValue();
             } else {
                 $data[$key] = $field->getValue();
