@@ -17,8 +17,11 @@ use Assetic\Filter\JSqueezeFilter;
 class ResourceManager {
     private $css; // array of css files
     private $js; // array of js files
+    private $theme;
 
-    function __construct($css = false, $js = false) {
+    function __construct(Theme $theme, $css = false, $js = false) {
+        $this->theme = $theme;
+
         if($css) {
             $this->addCSS($css);
         }
@@ -188,13 +191,11 @@ class ResourceManager {
      * Get path to file
      */
     private function getFilename($file, $type, $version = 'url') {
-        $theme = new Theme(Settings::get('current_theme'));
-
         if($version == 'url') {
-            $root = $theme->getURL();
+            $root = $this->theme->getURL();
         }
         else if($version == 'dir') {
-            $root = $theme->getDirectory();
+            $root = $this->theme->getDirectory();
         }
         switch($type) {
             case 'css':
