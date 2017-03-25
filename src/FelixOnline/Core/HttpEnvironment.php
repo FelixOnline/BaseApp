@@ -9,7 +9,7 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
 
         if(php_sapi_name() == "cli") {
             // Remote params
-            $env['Method'] = 'GET';
+            $env['Method'] = 'CLI';
             $env['RemoteIP'] = '127.0.0.1';
             $env['RemoteUA'] = 'Cli/1.0';
 
@@ -50,5 +50,22 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
 
     public function offsetGet($offset) {
         return isset($this->properties[$offset]) ? $this->properties[$offset] : null;
+    }
+
+    public function startBuffer() {
+        ob_start();
+    }
+
+    public function stopBuffer() {
+        ob_end_clean();
+    }
+
+    public function flushBuffer() {
+        ob_end_flush();
+    }
+
+    public function exit() {
+        ob_end_clean();
+        exit;
     }
 }
