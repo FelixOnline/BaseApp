@@ -8,8 +8,7 @@ use FelixOnline\Exceptions\SQLException;
 /**
  * Base DB class
  */
-class BaseDB extends BaseModel
-{
+class BaseDB extends BaseModel {
     public $fields = array(); // array that holds all the database fields
     public $dbtable; // name of database table
     public $pk;
@@ -19,7 +18,13 @@ class BaseDB extends BaseModel
     private $new;
     private $dontlog;
 
-    function __construct($fields, $id = null, $dbtable = null, $dontlog = false, $rowData = null) {
+    function __construct(
+        $fields,
+        $id = null,
+        $dbtable = null,
+        $dontlog = false,
+        $rowData = null
+    ) {
         $app = App::getInstance();
 
         if(!is_null($dbtable)) {
@@ -33,7 +38,9 @@ class BaseDB extends BaseModel
         }
 
         if(array_key_exists('deleted', $fields)) {
-            throw new InternalException('The column "deleted" is reserved by the database layer, and should not be specified.');
+            throw new InternalException(
+                'The column "deleted" is reserved by the database layer, and should not be specified.'
+            );
         }
 
         $fields['deleted'] = new Type\BooleanField();
@@ -58,7 +65,11 @@ class BaseDB extends BaseModel
             }
 
             if ($fields['deleted']->getValue() == true) {
-                throw new ModelNotFoundException('This model has been deleted', $this->dbtable, $this->constructorId);
+                throw new ModelNotFoundException(
+                    'This model has been deleted',
+                    $this->dbtable,
+                    $this->constructorId
+                );
             }
 
             $this->new = false;
@@ -96,11 +107,18 @@ class BaseDB extends BaseModel
             $results = $app['db']->get_row($sql);
 
             if($app['db']->last_error) {
-                throw new SQLException($app['db']->last_error, $app['db']->captured_errors);
+                throw new SQLException(
+                    $app['db']->last_error,
+                    $app['db']->captured_errors
+                );
             }
 
             if(is_null($results)) {
-                throw new ModelNotFoundException('No model in database', $this->dbtable, $this->constructorId);
+                throw new ModelNotFoundException(
+                    'No model in database',
+                    $this->dbtable,
+                    $this->constructorId
+                );
             }
 
             $app['cache']->save($item->set($results));
@@ -138,7 +156,9 @@ class BaseDB extends BaseModel
             $this->pk = NULL;
             $this->initialFields = NULL;
         } else {
-            throw new InternalException('Trying to delete a model that does not yet exist');
+            throw new InternalException(
+                'Trying to delete a model that does not yet exist'
+            );
         }
 
         return true;
@@ -154,8 +174,10 @@ class BaseDB extends BaseModel
         if($this->pk && $this->getPk()->getValue()) {
             $this->log('purge', "**PURGED FROM DATABASE** Reason: ".$reason);
 
-            $sql = $app['safesql']->query("DELETE FROM ".$this->dbtable." WHERE ".$this->pk." = '%s';",
-                array($this->getPk()->getValue()));
+            $sql = $app['safesql']->query(
+                "DELETE FROM ".$this->dbtable." WHERE ".$this->pk." = '%s';",
+                array($this->getPk()->getValue())
+            );
 
             $app['db']->query($sql);
 
@@ -168,7 +190,9 @@ class BaseDB extends BaseModel
             $this->pk = NULL;
             $this->initialFields = NULL;
         } else {
-            throw new InternalException('Trying to delete a model that does not yet exist');
+            throw new InternalException(
+                'Trying to delete a model that does not yet exist'
+            );
         }
 
         return true;
@@ -202,7 +226,10 @@ class BaseDB extends BaseModel
 
                 $app['db']->query($sql);
                 if($app['db']->last_error) {
-                    throw new SQLException($app['db']->last_error, $app['db']->captured_errors);
+                    throw new SQLException(
+                        $app['db']->last_error,
+                        $app['db']->captured_errors
+                    );
                 }
 
                 $this->constructorId = $this->getPk();
@@ -218,7 +245,10 @@ class BaseDB extends BaseModel
 
             $app['db']->query($sql);
             if($app['db']->last_error) {
-                throw new SQLException($app['db']->last_error, $app['db']->captured_errors);
+                throw new SQLException(
+                    $app['db']->last_error,
+                    $app['db']->captured_errors
+                );
             }
 
             $this->pk = $this->findPk($this->fields);
@@ -365,8 +395,10 @@ class BaseDB extends BaseModel
             }
 
             if($this->fields[$column]->getRawValue() !== $field->getRawValue()) {
-                $fields[$column] = array('old' => $field->getRawValue(),
-                                        'new' => $this->fields[$column]->getRawValue());
+                $fields[$column] = array(
+                    'old' => $field->getRawValue(),
+                    'new' => $this->fields[$column]->getRawValue()
+                );
             }
         }
 
@@ -394,7 +426,14 @@ class BaseDB extends BaseModel
             $user = 'ANON';
         }
 
-        $sql = $app['safesql']->query("INSERT INTO audit_log (`id`, `timestamp`, `table`, `key`, `user`, `action`, `fields`) VALUES (NULL, NOW(), '%s', '%s', '%s', '%s', '%s')",
+        $sql = $app['safesql']->query(
+            "INSERT INTO audit_log (`id`,
+                `timestamp`,
+                `table`, `key`,
+                `user`,
+                `action`,
+                `fields`
+            ) VALUES (NULL, NOW(), '%s', '%s', '%s', '%s', '%s')",
             array($this->dbtable,
                 $pk,
                 $user,

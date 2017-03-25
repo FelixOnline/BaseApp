@@ -132,7 +132,12 @@ class BaseManager
         return $this->filterOnSpecifiedTable($this->table, $filter, $values, $or);
     }
 
-    public function filterOnSpecifiedTable($table, $filter, $values = array(), $or = array()) {
+    public function filterOnSpecifiedTable(
+        $table,
+        $filter,
+        $values = array(),
+        $or = array()
+    ) {
         $app = \FelixOnline\Core\App::getInstance();
 
         if (!is_array($values)) {
@@ -151,7 +156,10 @@ class BaseManager
 
         if(count($or) > 0) {
             foreach($or as $orStatement) {
-                $string .= " OR `" . $table . "`." . $app['safesql']->query($orStatement[0], $orStatement[1]);
+                $string .= " OR `" . $table . "`." . $app['safesql']->query(
+                    $orStatement[0],
+                    $orStatement[1]
+                );
             }
 
             $string .= ')';
@@ -351,7 +359,12 @@ class BaseManager
     /**
      * Join managers together
      */
-    public function join(BaseManager $manager, $type = null, $column = null, $column_right = null) {
+    public function join(
+        BaseManager $manager,
+        $type = null,
+        $column = null,
+        $column_right = null
+    ) {
         $this->joins[$manager->table] = array(
             'manager' => $manager,
             'type' => $type,
