@@ -38,7 +38,7 @@ class BaseManagerTest extends AppTestCase {
 
         $sql = $manager->getSQL();
 
-        $this->assertEquals($sql, '(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, '(SELECT `audit_log`.*
 FROM `audit_log`
 WHERE `audit_log`.table IS NOT NULL
 AND `audit_log`.key IS NOT NULL
@@ -55,6 +55,7 @@ LIMIT 0, 10');
 
         $this->assertCount(3, $all);
         $this->assertInstanceOf('FelixOnline\Core\AuditLog', $all[0]);
+        $this->assertEquals('create', $all[0]->getAction());
     }
 
     public function testFilter() {
@@ -75,7 +76,7 @@ LIMIT 0, 10');
 
         $sql = $manager->getSQL();
 
-        $this->assertEquals($sql, '(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, '(SELECT `audit_log`.*
 FROM `audit_log`
 WHERE `audit_log`.table = 1
 AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
@@ -113,7 +114,7 @@ AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
 
         $sql = $manager->getSQL();
 
-        $this->assertEquals($sql, "(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, "(SELECT `audit_log`.*
 FROM `audit_log`
 WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
 )
@@ -127,7 +128,7 @@ ORDER BY `audit_log`.`id` DESC, `audit_log`.`key` DESC");
 
         $sql = $manager->getSQL();
 
-        $this->assertEquals($sql, "(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, "(SELECT `audit_log`.*
 FROM `audit_log`
 WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
 )
@@ -237,7 +238,7 @@ ORDER BY another_table.id DESC");
 
         $sql = $m1->getSQL();
 
-        $this->assertEquals($sql, '(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, '(SELECT `audit_log`.*
 FROM `audit_log`
 JOIN `article_author` ON ( `audit_log`.`id` = `article_author`.`article` )
 
@@ -274,7 +275,7 @@ ORDER BY `audit_log`.`id` ASC');
 
         $sql = $m1->getSQL();
 
-        $this->assertEquals($sql, '(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, '(SELECT `audit_log`.*
 FROM `audit_log`
 JOIN `category` ON ( `audit_log`.`category` = `category`.`id` )
 JOIN `category_author` ON ( `category`.`id` = `category_author`.`category` )
@@ -302,7 +303,7 @@ ORDER BY `audit_log`.`id` ASC');
 
         $sql = $m1->getSQL();
 
-        $this->assertEquals($sql, '(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, '(SELECT `audit_log`.*
 FROM `audit_log`
 LEFT JOIN `article_author` ON ( `audit_log`.`id` = `article_author`.`article` )
 
@@ -325,7 +326,7 @@ AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
 
         $sql = $m1->getSQL();
 
-        $this->assertEquals($sql, '(SELECT `audit_log`.`id`
+        $this->assertEquals($sql, '(SELECT `audit_log`.*
 FROM `audit_log`
 LEFT JOIN `article_author` ON ( `audit_log`.`TEST` = `article_author`.`article` )
 
@@ -378,15 +379,15 @@ AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
         $all = $manager->all();
 
         $selects = $app['db']->get_row("SHOW STATUS LIKE 'Com_select'")->Value;
-        // 1 for the initial SELECT then 3 to initialise each model
-        $this->assertEquals(4, (int) $selects);
+        // 1 for the initial SELECT, no need to initialize each model any more
+        $this->assertEquals(1, (int) $selects);
         $this->assertCount(3, $all);
         $this->assertInstanceOf('FelixOnline\Core\AuditLog', $all[0]);
 
         $all = $manager->all();
 
         $selects = $app['db']->get_row("SHOW STATUS LIKE 'Com_select'")->Value;
-        $this->assertEquals(4, (int) $selects);
+        $this->assertEquals(1, (int) $selects);
         $this->assertCount(3, $all);
         $this->assertInstanceOf('FelixOnline\Core\AuditLog', $all[0]);
     }

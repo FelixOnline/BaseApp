@@ -247,7 +247,7 @@ class BaseManager
             $distinct = '';
         }
 
-        $statement[] = "(SELECT $distinct`" . $this->table . "`.`" . $this->pk . "`";
+        $statement[] = "(SELECT $distinct`" . $this->table . "`.*";
         $statement[] = $this->getFrom();
         $statement[] = $this->getJoin();
         $statement[] = $this->getWhere();
@@ -298,7 +298,7 @@ class BaseManager
             $distinct = '';
         }
 
-        $statement[] = "(SELECT $distinct`" . $this->table . "`.`" . $this->pk . "`";
+        $statement[] = "(SELECT $distinct`" . $this->table . "`.*";
         $statement[] = $this->getFrom();
         $statement[] = $this->getJoin();
         $statement[] = $this->getWhere();
@@ -607,7 +607,9 @@ class BaseManager
             $pk = $r->{$this->pk};
 
             try {
-                $models[] = new $this->class($pk);
+                // It is inefficient to fetch every record from the DB here
+                // Instead, pass in the result data
+                $models[] = new $this->class($pk, $r);
             } catch(\Exception $e) { }
         }
         return $models;

@@ -19,9 +19,9 @@ class BaseDB extends BaseModel
     private $new;
     private $dontlog;
 
-    function __construct($fields, $id = null, $dbtable = null, $dontlog = false)
+    function __construct($fields, $id = null, $dbtable = null, $dontlog = false, $rowData = null)
     {
-        $app = \FelixOnline\Core\App::getInstance();
+        $app = App::getInstance();
 
         if (!is_null($dbtable)) {
             $this->dbtable = $dbtable;
@@ -52,7 +52,7 @@ class BaseDB extends BaseModel
 
             $fields[$this->pk]->setValue($id);
 
-            $results = $this->getValues($fields);
+            $results = $this->getValues($fields, $rowData);
 
             foreach ($results as $column => $value) {
                 $fields[$column]->setValue($value);
@@ -80,9 +80,12 @@ class BaseDB extends BaseModel
     /**
      * Query database and return results
      */
-    protected function getValues($fields)
-    {
-        $app = \FelixOnline\Core\App::getInstance();
+    protected function getValues($fields, $preCalculatedResult = false) {
+        if($preCalculatedResult) {
+            return $preCalculatedResult;
+        }
+
+        $app = App::getInstance();
 
         $sql = $this->constructSelectSQL($fields);
 
@@ -114,7 +117,7 @@ class BaseDB extends BaseModel
      */
     protected function getCache($pk)
     {
-        $app = \FelixOnline\Core\App::getInstance();
+        $app = App::getInstance();
         return $app['cache']->getItem($this->dbtable.'/'.$pk->getValue());
     }
 
@@ -326,7 +329,7 @@ class BaseDB extends BaseModel
         // If there isn't a primary key defined then add a default one
         if (is_null($pk)) {
             $pk = 'id';
-            $fields[$pk] = new \FelixOnline\Core\Type\IntegerField(array('primary' => true));
+            $fields[$pk] = new Type\IntegerField(array('primary' => true));
         }
 
         return $pk;
