@@ -1,6 +1,6 @@
 {
-    "name": "felixonline/core",
-    "description": "Felix Online Core",
+    "name": "felixonline/base",
+    "description": "Felix Online Base Services",
     "license": "BSD-3-Clause",
     "authors": [
         {
@@ -25,7 +25,7 @@
         "mrclay/minify": "@stable",
         "kriswallsmith/assetic": "@stable",
         "patchwork/jsqueeze": "@stable",
-        "natxet/CssMin": "^3.0"
+        "natxet/CssMin": "@stable"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable",
