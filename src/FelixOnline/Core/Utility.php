@@ -63,7 +63,7 @@ class Utility {
         $hash = $hash.$form_name.$max_length;
         $hash = sha1($hash);
 
-        setcookie('felixonline_csrf_'.$form_name, $hash, time() + $max_length, '/');
+        setcookie(COOKIE_NAME.'_csrf_'.$form_name, $hash, time() + $max_length, '/');
 
         return $hash;
     }
