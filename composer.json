@@ -27,12 +27,12 @@
         "natxet/CssMin": "@stable"
     },
     "require-dev": {
-        "phpunit/phpunit": "@stable",
+        "phpunit/phpunit": "5.7.*",
         "phpunit/dbunit": "@stable",
         "ptrofimov/xpmock": "@stable",
         "psy/psysh": "@stable",
         "fzaninotto/faker": "@stable",
-        "johnkary/phpunit-speedtrap": "^1.0"
+        "johnkary/phpunit-speedtrap": "@stable"
     },
     "autoload": {
         "psr-4": {
