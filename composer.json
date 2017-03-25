@@ -22,7 +22,6 @@
         "swiftmailer/swiftmailer": "@stable",
         "leafo/lessphp": "@stable",
         "leafo/scssphp": "@stable",
-        "mrclay/minify": "@stable",
         "kriswallsmith/assetic": "@stable",
         "patchwork/jsqueeze": "@stable",
         "natxet/CssMin": "@stable"
