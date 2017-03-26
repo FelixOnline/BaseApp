@@ -1,6 +1,8 @@
 <?php
 namespace FelixOnline\Core;
 
+use FelixOnline\Exceptions\InternalException;
+
 class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
     protected $properties;
     private $request;
@@ -35,11 +37,13 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
 
         $this->properties = $env;
 
-        $this->request = \Zend\Diactoros\Response::class;
-        $this->response = \Zend\Diactoros\ServerRequestFactory::fromGlobals(
+        $this->request = \Zend\Diactoros\ServerRequestFactory::fromGlobals(
             $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
         );
-        $this->emitter = \Zend\Diactoros\Response\SapiEmitter::class;
+        $this->response = new \Zend\Diactoros\Response\HtmlResponse('');
+        // Override response if not html
+
+        $this->emitter = new \Zend\Diactoros\Response\SapiEmitter();
 
         $this->glue = new HttpGlue();
         $this->glue->addMiddleware(new \Psr7Middlewares\Middleware\PhpSession(SESSION_NAME));
@@ -70,8 +74,8 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
     }
 
     public function setResponse($response) {
-        if(!($response instanceof \Psr\Http\Message\ServerRequestInterface)) {
-            throw new Exceptions\InternalException('Not a PSR-7 ServerRequest');
+        if(!($response instanceof \Psr\Http\Message\ResponseInterface)) {
+            throw new InternalException('Not a PSR-7 Response');
         }
 
         $this->response = $response;
@@ -82,6 +86,9 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
     }
 
     public function dispatch() {
+        if(!($this->response instanceof \Psr\Http\Message\ResponseInterface)) {
+            throw new InternalException('Set a PSR-7 Response');
+        }
         $this->response = $this->getGlue()->dispatch($this->request, $this->response);
     }
 

@@ -75,10 +75,5 @@ class HttpGlue {
         \Psr\Http\Message\ResponseInterface $response
     ) {
         return $this->router->dispatch($request, $response);
-
-        // FIXME
-        if(!$found) {
-            throw new GlueURLException("The URL accessed does not match any URL in the glue", $path);
-        }
     }
 }
