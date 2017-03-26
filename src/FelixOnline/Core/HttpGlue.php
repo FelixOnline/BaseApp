@@ -9,9 +9,8 @@ namespace FelixOnline\Core;
 
 use FelixOnline\Exceptions\GlueInternalException;
 use FelixOnline\Exceptions\GlueMethodException;
-use FelixOnline\Exceptions\GlueRouteException;
 
-class HttpGlue {
+class HttpGlue implements GlueInterface {
     private $router;
 
     public function __construct() {
@@ -70,10 +69,16 @@ class HttpGlue {
         }
     }
 
-    public function dispatch(
-        \Psr\Http\Message\ServerRequestInterface $request,
-        \Psr\Http\Message\ResponseInterface $response
-    ) {
+    public function dispatch($request, $response) {
+        if(
+            !($request instanceof \Psr\Http\Message\ServerRequestInterface) ||
+            !($response instanceof \Psr\Http\Message\ResponseInterface)
+        ) {
+            throw new \FelixOnline\Exceptions\InternalException(
+                "Dispatch requires PSR-7 compliant request and response"
+            );
+        }
+
         return $this->router->dispatch($request, $response);
     }
 }
