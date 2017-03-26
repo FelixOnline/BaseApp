@@ -105,7 +105,7 @@ class App implements \ArrayAccess {
             !($this->container['db'] instanceof \ezSQL_mysqli)
         ) {
             $db = new \ezSQL_mysqli();
-            $db->quick_connect(
+            $status = $db->quick_connect(
                 self::$options['db_user'],
                 self::$options['db_pass'],
                 self::$options['db_name'],
@@ -113,6 +113,11 @@ class App implements \ArrayAccess {
                 self::$options['db_port'],
                 'utf8'
             );
+
+            if(!$status) {
+                throw new InternalException('Could not connect to database');
+            }
+
             $db->show_errors();
 
             $this->container['db'] = $db;
