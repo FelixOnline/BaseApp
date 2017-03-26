@@ -104,38 +104,4 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
     public function exit() {
         exit;
     }
-
-    /* Cookies */
-    public function getCookie($cookie) {
-        return \Dflydev\FigCookies\FigRequestCookies::get($this->request, $cookie);
-    }
-
-    public function setCookie(\DFlydev\FigCookies\SetCookie $cookie) {
-        $this->response = \Dflydev\FigCookies\FigResponseCookies::set(
-            $this->response,
-            $cookie
-        );
-    }
-
-    public function removeCookie($cookie) {
-        $this->response = \Dflydev\FigCookies\FigResponseCookies::remove(
-            $this->response,
-            $cookie
-        );
-    }
-
-    public function expireCookie($cookie) {
-        $this->response = \Dflydev\FigCookies\FigResponseCookies::expire(
-            $this->response,
-            $cookie
-        );
-    }
-
-    public function modifyCookie(\DFlydev\FigCookies\SetCookie $cookie) {
-        $this->response = \Dflydev\FigCookies\FigResponseCookies::modify(
-            $this->response,
-            $cookie->getName(),
-            function($cookie) { return $cookie; }
-        );
-    }
 }

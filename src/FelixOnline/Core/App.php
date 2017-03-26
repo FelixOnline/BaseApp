@@ -47,7 +47,7 @@ class App implements \ArrayAccess {
     public function run() {
         $runner = new \League\BooBoo\Runner();
 
-        $html = new \League\BooBoo\Formatter\HtmlFormatter;
+        $html = new \League\BooBoo\Formatter\HtmlTableFormatter;
         $null = new \League\BooBoo\Formatter\NullFormatter;
 
         $html->setErrorLimit(E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING);
