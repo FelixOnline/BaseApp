@@ -43,13 +43,16 @@ class HttpGlue {
             );
         }
 
-        // Tests pass, now add to router
+        $route = $this->router->map($method, $path, [new $class, $classMethod]);
+
         if($middleware) {
-            // FIXME: only one middleware per route
-            $this->router->map($method, $path, [new $class, $classMethod])
-                         ->middleware($middleware);
-        } else {
-            $this->router->map($method, $path, [new $class, $classMethod]);
+            if(is_array($middleware)) {
+                foreach($middleware as $m) {
+                    $route->middleware($m);
+                }
+            } else {
+                $route->middleware($middleware);
+            }
         }
     }
 
