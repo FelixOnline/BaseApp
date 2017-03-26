@@ -33,6 +33,7 @@
         "neomerx/cors-psr7": "@stable",
         "ramsey/uuid": "@stable",
         "sentry/sentry": "@stable",
+        "league/flysystem": "@stable",
         "league/booboo": "@stable"
     },
     "require-dev": {
