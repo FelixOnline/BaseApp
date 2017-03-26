@@ -24,7 +24,14 @@
         "leafo/scssphp": "@stable",
         "kriswallsmith/assetic": "@stable",
         "patchwork/jsqueeze": "@stable",
-        "natxet/CssMin": "@stable"
+        "natxet/CssMin": "@stable",
+        "league/route": "@stable",
+        "zendframework/zend-diactoros": "@stable",
+        "dflydev/fig-cookies": "@stable",
+        "oscarotero/psr7-middlewares": "@stable",
+        "maximebf/debugbar": "@stable",
+        "neomerx/cors-psr7": "@stable",
+        "ramsey/uuid": "@stable"
     },
     "require-dev": {
         "phpunit/phpunit": "5.7.*",

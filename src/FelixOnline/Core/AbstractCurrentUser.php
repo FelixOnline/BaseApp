@@ -13,10 +13,6 @@ abstract class AbstractCurrentUser {
             if(!isset($app['env']['session'])) {
                 $app['env']['session'] = new Session(SESSION_NAME);
             }
-
-            if(!isset($app['env']['cookies'])) {
-                $app['env']['cookies'] = new Cookies();
-            }
         }
     }
 

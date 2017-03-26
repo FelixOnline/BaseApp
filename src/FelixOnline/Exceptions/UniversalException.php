@@ -12,7 +12,7 @@ class UniversalException extends \Exception {
     const EXCEPTION_ERRORHANDLER = 104;
     const EXCEPTION_SQL = 105;
     const EXCEPTION_GLUE = 151;
-	const EXCEPTION_GLUE_URL = 152;
+	const EXCEPTION_GLUE_ROUTE = 152;
 	const EXCEPTION_GLUE_METHOD = 153;
 
     protected $user;

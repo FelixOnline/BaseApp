@@ -25,7 +25,7 @@ class Session implements \ArrayAccess
     {
         session_name($this->name); // set session name
         if (session_status() == PHP_SESSION_NONE) {
-            session_start(); // start session
+            throw new Exceptions\InternalException('Session middleware not loaded');
         }
 
         $this->session = &$_SESSION[$this->name];

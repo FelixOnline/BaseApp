@@ -2,8 +2,8 @@
 
 namespace FelixOnline\Exceptions;
 
-class GlueURLException extends UniversalException {
-    public function __construct($message, $url, $code = parent::EXCEPTION_GLUE_URL, Exception $previous = null) {
-        parent::__construct($message, $url, $code, $previous);
+class GlueRouteException extends UniversalException {
+    public function __construct($message, $path, $code = parent::EXCEPTION_GLUE_ROUTE, Exception $previous = null) {
+        parent::__construct($message, $path, $code, $previous);
     }
 }

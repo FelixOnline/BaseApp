@@ -64,16 +64,6 @@ class AppTestCase extends DatabaseTestCase {
 
         $app['env']['session'] = $session;
 
-        $cookies = $this->mock('FelixOnline\\Core\\Cookies')
-            ->set(true)
-            ->delete(true)
-            ->new();
-
-        $this->reflect($cookies)
-            ->__set('cookies', array());
-
-        $app['env']['cookies'] = $cookies;
-
         if ($this->setCurrentUser) {
             $app['currentuser'] = new \FelixOnline\Core\StubCurrentUser();
         }
