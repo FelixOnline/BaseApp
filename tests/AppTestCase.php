@@ -19,29 +19,20 @@ class AppTestCase extends DatabaseTestCase {
     public function setUp() {
         parent::setUp();
 
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         // create app
         $config = $this->appConfig + array(
             'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         );
 
         $app = new \FelixOnline\Core\App($config);
-
-        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
-        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
-
-        $db = new \ezSQL_mysqli();
-        $db->quick_connect(
-            $dbuser,
-            $dbpass,
-            'test_media_felix',
-            'localhost',
-            3306,
-            'utf8'
-        );
-        $app['db'] = $db;
-
-        $app['safesql'] = new \SafeSQL_MySQLi($db->dbh);
 
         $app['env'] = new \FelixOnline\Core\HttpEnvironment();
 

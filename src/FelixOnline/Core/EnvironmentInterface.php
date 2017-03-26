@@ -10,5 +10,5 @@ interface EnvironmentInterface {
     public function emit();
     public function dispatchAndEmit();
 
-    public function exit();
+    public function terminate();
 }

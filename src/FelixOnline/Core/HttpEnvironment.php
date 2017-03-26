@@ -101,7 +101,7 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
         $this->emitter->emit($this->response);
     }
 
-    public function exit() {
-        exit;
+    public function terminate() {
+        exit();
     }
 }

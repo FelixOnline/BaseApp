@@ -60,7 +60,13 @@ class App implements \ArrayAccess {
             !isset($this->container['sentry']) ||
             !($this->container['sentry'] instanceof \Raven_Client)
         ) {
-            $app['sentry'] = new \Raven_Client(self::$options['sentry_dsn']);
+            if(!isset(self::$options['sentry_dsn'])) {
+                $dsn = '';
+            } else {
+                $dsn = self::$options['sentry_dsn'];
+            }
+
+            $app['sentry'] = new \Raven_Client($dsn);
         }
 
         $raven = new \League\BooBoo\Handler\RavenHandler($app['sentry']);
@@ -152,7 +158,7 @@ class App implements \ArrayAccess {
             !isset($this->container['safesql']) ||
             !($this->container['safesql'] instanceof \SafeSQL_MySQLi)
         ) {
-            $safesql = new \SafeSQL_MySQLi($this->container['db']->dbh);
+            $this->container['safesql'] = new \SafeSQL_MySQLi($this->container['db']->dbh);
         }
     }
 

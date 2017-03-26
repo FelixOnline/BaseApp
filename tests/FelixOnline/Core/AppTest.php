@@ -12,21 +12,6 @@ class AppTest extends DatabaseTestCase {
     public function createApp($config) {
         $app = new \FelixOnline\Core\App($config);
 
-        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
-        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
-
-        $db = new \ezSQL_mysqli();
-        $db->quick_connect(
-            $dbuser,
-            $dbpass,
-            'test_media_felix',
-            'localhost',
-            3306,
-            'utf8'
-        );
-        $app['db'] = $db;
-
-        $app['safesql'] = new \SafeSQL_MySQLi($db->dbh);
         $app['env'] = new \FelixOnline\Core\HttpEnvironment();
 
         $session = $this->mock('FelixOnline\\Core\\Session')
@@ -46,8 +31,15 @@ class AppTest extends DatabaseTestCase {
     }
 
     public function testApp() {
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
         $this->assertInstanceOf('FelixOnline\Core\App', $app);
@@ -56,16 +48,30 @@ class AppTest extends DatabaseTestCase {
     public function testAppWithCacheFolder() {
         define('CACHE_FOLDER', '.');
 
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
         $this->assertInstanceOf('FelixOnline\Core\App', $app);
     }
 
-    public function testSingleton()    {
+    public function testSingleton() {
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
 
@@ -92,20 +98,35 @@ class AppTest extends DatabaseTestCase {
         $app = $this->createApp(array());
     }
 
-    public function testGetOption()    {
+    public function testGetOption() {
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
 
-        $this->assertEquals($app->getOption('base_url'), 'foo');
+        $this->assertEquals($app->getOption('base_url'), 'http://localhost/');
     }
 
     public function testGetOptionDefault() {
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
+
         $this->assertEquals($app->getOption('foo', 'bar'), 'bar');
     }
 
@@ -115,87 +136,57 @@ class AppTest extends DatabaseTestCase {
             'Option "bar" has not been set'
         );
 
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
 
         $app->getOption('bar');
     }
 
-    public function testRunNoDbException() {
+    public function testRunInvalidDBDetailsException() {
         \FelixOnline\Core\App::setInstance(null);
 
         $this->setExpectedException(
             'Exception',
-            'No db setup'
+            'Could not connect to database'
         );
 
-        $app = new \FelixOnline\Core\App(array(
-            'base_url' => 'foo',
-            'unit_tests' => true
-        ));
-        $app->run();
-    }
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
-    public function testRunWrongDbTypeException() {
-        \FelixOnline\Core\App::setInstance(null);
-
-        $this->setExpectedException(
-            'Exception',
-            'No db setup'
-        );
-
-        $app = new \FelixOnline\Core\App(array(
-            'base_url' => 'foo',
-            'unit_tests' => true
-        ));
-        $app['db'] = 'foo';
-        $app->run();
-    }
-
-    public function testRunNoSafesqlException()    {
-        \FelixOnline\Core\App::setInstance(null);
-
-        $this->setExpectedException(
-            'Exception',
-            'No safesql setup'
-        );
-
-        $app = new \FelixOnline\Core\App(array(
-            'base_url' => 'foo',
-            'unit_tests' => true
-        ));
-
-        $db = new \ezSQL_mysqli();
-        $app['db'] = $db;
-        $app->run();
-    }
-
-    public function testRunNoWrongSafesqlException() {
-        \FelixOnline\Core\App::setInstance(null);
-
-        $this->setExpectedException(
-            'Exception',
-            'No safesql setup'
-        );
-
-        $app = new \FelixOnline\Core\App(array(
-            'base_url' => 'foo',
-            'unit_tests' => true
-        ));
-
-        $db = new \ezSQL_mysqli();
-        $app['db'] = $db;
-        $app['safesql'] = 'foo';
-        $app->run();
-    }
-
-    public function testQuery()    {
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => 'INVALID',
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
+
+        $app->run();
+    }
+
+    public function testQuery() {
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
+        $app = $this->createApp(array(
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
+            'unit_tests' => true
+        ));
+
 
         $this->assertEquals(
             "SELECT id FROM foo",
@@ -204,10 +195,18 @@ class AppTest extends DatabaseTestCase {
     }
 
     public function testNotSetException() {
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
+
 
         $this->setExpectedException(
             'FelixOnline\Exceptions\InternalException',
@@ -219,8 +218,15 @@ class AppTest extends DatabaseTestCase {
     }
 
     public function testUnset() {
+        $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+        $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
+
         $app = $this->createApp(array(
-            'base_url' => 'foo',
+            'base_url' => 'http://localhost/',
+            'db_user' => $dbuser,
+            'db_pass' => $dbpass,
+            'db_name' => 'test_media_felix',
+            'db_host' => 'localhost',
             'unit_tests' => true
         ));
 
