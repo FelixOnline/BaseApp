@@ -45,6 +45,31 @@ class App implements \ArrayAccess {
      * Initialize app
      */
     public function run() {
+        $runner = new \League\BooBoo\Runner();
+
+        $html = new \League\BooBoo\Formatter\HtmlFormatter;
+        $null = new \League\BooBoo\Formatter\NullFormatter;
+
+        $html->setErrorLimit(E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING);
+        $null->setErrorLimit(E_ALL);
+
+        $runner->pushFormatter($null);
+        $runner->pushFormatter($html);
+
+        if(
+            !isset($this->container['sentry']) ||
+            !($this->container['sentry'] instanceof \Raven_Client)
+        ) {
+            $app['sentry'] = new \Raven_Client(self::$options['sentry_dsn']);
+        }
+
+        $raven = new \League\BooBoo\Handler\RavenHandler($app['sentry']);
+        $runner->pushHandler($raven);
+
+        $runner->register();
+
+        $this->container['booboo'] = $runner;
+
         if(
             !isset($this->container['env'])
             || is_null($this->container['env'])
@@ -128,13 +153,6 @@ class App implements \ArrayAccess {
             !($this->container['safesql'] instanceof \SafeSQL_MySQLi)
         ) {
             $safesql = new \SafeSQL_MySQLi($this->container['db']->dbh);
-        }
-
-        if(
-            !isset($this->container['sentry']) ||
-            !($this->container['sentry'] instanceof \Raven_Client)
-        ) {
-            $app['sentry'] = new \Raven_Client(self::$options['sentry_dsn']);
         }
     }
 

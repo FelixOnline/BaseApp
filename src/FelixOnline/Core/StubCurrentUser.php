@@ -8,7 +8,7 @@ class StubCurrentUser extends AbstractCurrentUser {
         $app = App::getInstance();
 
         if(!$app->isUnderTest()) {
-            trigger_error('WARNING: Stub CurrentUser is in use - this is probably not what you want.');
+            trigger_error('Stub CurrentUser is in use - this is probably not what you want.', E_USER_WARNING);
         }
 
         return parent::__construct();
