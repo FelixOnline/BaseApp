@@ -31,7 +31,8 @@
         "oscarotero/psr7-middlewares": "@stable",
         "maximebf/debugbar": "@stable",
         "neomerx/cors-psr7": "@stable",
-        "ramsey/uuid": "@stable"
+        "ramsey/uuid": "@stable",
+        "sentry/sentry": "@stable"
     },
     "require-dev": {
         "phpunit/phpunit": "5.7.*",
@@ -48,7 +49,8 @@
             "FelixOnline\\Exceptions\\": "src/FelixOnline/Exceptions"
         },
         "classmap": [
-            "lib/SafeSQL.php"
+            "lib/SafeSQL.php",
+            "constants.php"
         ]
     }
 }

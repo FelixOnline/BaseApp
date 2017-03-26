@@ -18,7 +18,11 @@ class App implements \ArrayAccess {
      * Required options
      */
     protected $required = array(
-        'base_url'
+        'base_url',
+        'db_name',
+        'db_host',
+        'db_user',
+        'db_pass'
     );
 
     /**
@@ -41,33 +45,54 @@ class App implements \ArrayAccess {
      * Initialize app
      */
     public function run() {
-        if (!isset($this->container['env']) || is_null($this->container['env'])) {
+        if(
+            !isset($this->container['env'])
+            || is_null($this->container['env'])
+        ) {
             $this->container['env'] = new HttpEnvironment();
         }
 
-        if (!isset($this->container['akismet']) || is_null($this->container['akismet'])) {
+        if(
+            !isset($this->container['akismet']) ||
+            is_null($this->container['akismet'])
+        ) {
             // Initialize Akismet
-            $connector = new \Riv\Service\Akismet\Connector\Curl();
+            if(LOCAL) {
+                $connector = new \Riv\Service\Akismet\Connector\Test();
+            } else {
+                $connector = new \Riv\Service\Akismet\Connector\Curl();
+            }
+
             $this->container['akismet'] = new \Riv\Service\Akismet\Akismet($connector);
         }
 
-        if (!isset($this->container['email']) || is_null($this->container['email'])) {
+        if(
+            !isset($this->container['email']) ||
+            is_null($this->container['email'])
+        ) {
             // Initialize email
             $transport = \Swift_MailTransport::newInstance();
             $this->container['email'] = \Swift_Mailer::newInstance($transport);
         }
 
-        if (!isset($this->container['cache']) || is_null($this->container['cache'])) {
-            if(defined('CACHE_FOLDER')) {
-                $driver = new \Stash\Driver\FileSystem(array('path' => CACHE_FOLDER));
+        if(
+            !isset($this->container['cache']) ||
+            is_null($this->container['cache'])
+        ) {
+            if(LOCAL) {
+                $driver = new \Stash\Driver\BlackHole();
             } else {
-                $driver = new \Stash\Driver\FileSystem();
+                if(defined('CACHE_FOLDER')) {
+                    $driver = new \Stash\Driver\FileSystem(array('path' => CACHE_FOLDER));
+                } else {
+                    $driver = new \Stash\Driver\FileSystem();
+                }
             }
 
             $this->container['cache'] = new \Stash\Pool($driver);
         }
 
-        if (
+        if(
             !isset($this->container['currentuser'])
             || is_null($this->container['currentuser'])
             || !($this->container['currentuser'] instanceof AbstractCurrentUser)
@@ -75,12 +100,36 @@ class App implements \ArrayAccess {
             $this->container['currentuser'] = new StubCurrentUser();
         }
 
-        if (!isset($this->container['db']) || !($this->container['db'] instanceof \ezSQL_mysqli)) {
-            throw new \Exception('No db setup');
+        if(
+            !isset($this->container['db']) ||
+            !($this->container['db'] instanceof \ezSQL_mysqli)
+        ) {
+            $db = new \ezSQL_mysqli();
+            $db->quick_connect(
+                self::$options['db_user'],
+                self::$options['db_pass'],
+                self::$options['db_name'],
+                self::$options['db_host'],
+                self::$options['db_port'],
+                'utf8'
+            );
+            $db->show_errors();
+
+            $this->container['db'] = $db;
         }
 
-        if (!isset($this->container['safesql']) || !($this->container['safesql'] instanceof \SafeSQL_MySQLi)) {
-            throw new \Exception('No safesql setup');
+        if(
+            !isset($this->container['safesql']) ||
+            !($this->container['safesql'] instanceof \SafeSQL_MySQLi)
+        ) {
+            $safesql = new \SafeSQL_MySQLi($this->container['db']->dbh);
+        }
+
+        if(
+            !isset($this->container['sentry']) ||
+            !($this->container['sentry'] instanceof \Raven_Client)
+        ) {
+            $app['sentry'] = new \Raven_Client(self::$options['sentry_dsn']);
         }
     }
 
@@ -93,7 +142,11 @@ class App implements \ArrayAccess {
     }
 
     public function isUnderTest() {
-        return $this->getOption('unit_tests');
+        try {
+            return $this->getOption('unit_tests');
+        } catch(\Exception $e) {
+            return false;
+        }
     }
 
     /**
