@@ -104,7 +104,7 @@ class BaseDB extends BaseModel {
         $results = $item->get(\Stash\Invalidation::PRECOMPUTE, 300);
 
         if($item->isMiss()) {
-            $results = $app['db']->get_row($sql);
+            $results = $this->runGetRow($sql);
 
             if($app['db']->last_error) {
                 throw new SQLException(
@@ -179,7 +179,7 @@ class BaseDB extends BaseModel {
                 array($this->getPk()->getValue())
             );
 
-            $app['db']->query($sql);
+            $this->runQuery($sql);
 
             // clear cache
             $item = $this->getCache($this->getPk());
@@ -224,7 +224,7 @@ class BaseDB extends BaseModel {
             if(!empty($changed)) {
                 $sql = $this->constructUpdateSQL($changed, $this->fields);
 
-                $app['db']->query($sql);
+                $this->runQuery($sql);
                 if($app['db']->last_error) {
                     throw new SQLException(
                         $app['db']->last_error,
@@ -243,7 +243,7 @@ class BaseDB extends BaseModel {
         } else { // insert model
             $sql = $this->constructInsertSQL($this->fields);
 
-            $app['db']->query($sql);
+            $this->runQuery($sql);
             if($app['db']->last_error) {
                 throw new SQLException(
                     $app['db']->last_error,
@@ -440,6 +440,36 @@ class BaseDB extends BaseModel {
                 $action,
                 json_encode($fields)));
 
-        $app['db']->query($sql);
+        return $this->runQuery($sql);
+    }
+
+    public function runQuery($sql) {
+        $app = App::getInstance();
+
+        $time_start = time();
+        $return = $app['db']->query($sql);
+        $time_stop = time();
+
+        $app['db_log'][] = array(
+            'Query' => $sql,
+            'Time' => $time_stop - $time_start
+        );
+
+        return $return;
+    }
+
+    public function runGetRow($sql) {
+        $app = App::getInstance();
+
+        $time_start = time();
+        $return = $app['db']->get_row($sql);
+        $time_stop = time();
+
+        $app['db_log'][] = array(
+            'Query' => $sql,
+            'Time' => $time_stop - $time_start
+        );
+
+        return $return;
     }
 }

@@ -153,6 +153,8 @@ class App implements \ArrayAccess {
             $db->show_errors();
 
             $this->container['db'] = $db;
+
+            $this->container['db_log'] = array();
         }
 
         if(
