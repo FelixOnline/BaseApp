@@ -10,6 +10,7 @@ class UniversalException extends \Exception {
     const EXCEPTION_MODEL_NOTFOUND = 102;
     const EXCEPTION_MODEL = 103;
     const EXCEPTION_SQL = 105;
+    const EXCEPTION_DBCONNECT = 106;
     const EXCEPTION_GLUE = 151;
 	const EXCEPTION_GLUE_ROUTE = 152;
 	const EXCEPTION_GLUE_METHOD = 153;

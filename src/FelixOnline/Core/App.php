@@ -2,6 +2,7 @@
 namespace FelixOnline\Core;
 
 use FelixOnline\Exceptions\InternalException;
+use FelixOnline\Exceptions\DBConnectionException;
 
 /**
  * App class
@@ -146,7 +147,7 @@ class App implements \ArrayAccess {
             );
 
             if(!$status) {
-                throw new InternalException('Could not connect to database');
+                throw new DBConnectionException('Could not connect to database');
             }
 
             $db->show_errors();
