@@ -19,6 +19,7 @@ trait ControllerCookiesTrait {
         );
     }
 
+    // Remove from response, not remove from browser
     private function removeCookie(
         $cookie,
         \Psr\Http\Message\ResponseInterface $response
@@ -31,12 +32,21 @@ trait ControllerCookiesTrait {
 
     private function expireCookie(
         $cookie,
-        \Psr\Http\Message\ResponseInterface $response
+        \Psr\Http\Message\ResponseInterface $response,
+        $domain = null,
+        $path = null
     ) {
-        return \Dflydev\FigCookies\FigResponseCookies::expire(
-            $response,
-            $cookie
-        );
+        $setCookie = \Dflydev\FigCookies\SetCookie::createExpired($cookie);
+
+        if($domain) {
+            $setCookie = $setCookie->withDomain($domain);
+        }
+
+        if($path) {
+            $setCookie = $setCookie->withPath($path);
+        }
+
+        return $this->setCookie($setCookie, $response);
     }
 
     private function modifyCookie(
