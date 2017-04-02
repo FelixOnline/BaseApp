@@ -52,7 +52,7 @@
         },
         "classmap": [
             "lib/SafeSQL.php",
-            "constants.php"
+            "lib/constants.php"
         ]
     }
 }
