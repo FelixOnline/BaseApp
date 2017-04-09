@@ -7,8 +7,7 @@ use \FelixOnline\Exceptions\SQLException;
 /**
  * Base manager
  */
-class BaseManager
-{
+class BaseManager {
     /**
      * database table
      */
@@ -310,6 +309,7 @@ class BaseManager
         $statement[] = $this->getFrom();
         $statement[] = $this->getJoin();
         $statement[] = $this->getWhere();
+        $statement[] = $this->getGroup(true);
 
         $statement[] = ")";
 
@@ -319,10 +319,8 @@ class BaseManager
         }
 
         if($this->unions) {
-            $statement[] = $this->getGroup(true);
             $statement[] = $this->getOrder(true);
         } else {
-            $statement[] = $this->getGroup(false);
             $statement[] = $this->getOrder(false);
         }
 
