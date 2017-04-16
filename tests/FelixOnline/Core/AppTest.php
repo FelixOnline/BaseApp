@@ -40,13 +40,13 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
         $this->assertInstanceOf('FelixOnline\Core\App', $app);
     }
 
     public function testAppWithCacheFolder() {
-        define('CACHE_FOLDER', '.');
 
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
@@ -57,7 +57,9 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false,
+            'stash_cache_folder' => '/tmp'
         ));
         $this->assertInstanceOf('FelixOnline\Core\App', $app);
     }
@@ -72,7 +74,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
         $this->assertEquals($app, \FelixOnline\Core\App::getInstance());
@@ -92,7 +95,7 @@ class AppTest extends DatabaseTestCase {
     public function testRequiredOptions() {
         $this->setExpectedException(
             'Exception',
-            '"base_url" option has not been defined'
+            '"db_name" option has not been defined'
         );
 
         $app = $this->createApp(array());
@@ -108,7 +111,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
         $this->assertEquals($app->getOption('base_url'), 'http://localhost/');
@@ -124,7 +128,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
         $this->assertEquals($app->getOption('foo', 'bar'), 'bar');
@@ -145,7 +150,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
         $app->getOption('bar');
@@ -168,7 +174,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
         $app->run();
@@ -184,7 +191,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
 
@@ -204,7 +212,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
 
@@ -227,7 +236,8 @@ class AppTest extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         ));
 
         $app['foo'] = 'bar';

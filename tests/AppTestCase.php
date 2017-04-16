@@ -29,7 +29,8 @@ class AppTestCase extends DatabaseTestCase {
             'db_pass' => $dbpass,
             'db_name' => 'test_media_felix',
             'db_host' => 'localhost',
-            'unit_tests' => true
+            'unit_tests' => true,
+            'production' => false
         );
 
         $app = new \FelixOnline\Core\App($config);
