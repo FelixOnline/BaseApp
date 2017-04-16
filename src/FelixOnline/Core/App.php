@@ -37,6 +37,18 @@ class App implements \ArrayAccess {
         $this->checkOptions($options);
         self::$options = $options;
 
+        if(!isset(self::$options['app_name'])) {
+            self::$options['app_name'] = 'BaseApp';
+        }
+
+        if(!isset(self::$options['app_version'])) {
+            self::$options['app_version'] = '0.10pre';
+        }
+
+        if(!isset(self::$options['app_author'])) {
+            self::$options['app_author'] = 'Felix Online';
+        }
+
         unset($this->container);
 
         self::$instance = $this;
