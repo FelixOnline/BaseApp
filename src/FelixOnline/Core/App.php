@@ -19,11 +19,11 @@ class App implements \ArrayAccess {
      * Required options
      */
     protected $required = array(
-        'base_url',
         'db_name',
         'db_host',
         'db_user',
-        'db_pass'
+        'db_pass',
+        'production'
     );
 
     /**
@@ -48,14 +48,23 @@ class App implements \ArrayAccess {
     public function run() {
         $runner = new \League\BooBoo\Runner();
 
-        $html = new \League\BooBoo\Formatter\HtmlTableFormatter;
+        if($this->getMode() == self::MODE_HTTP) {
+            $aFtr = new \League\BooBoo\Formatter\HtmlTableFormatter;
+        } else {
+            $aFtr = new \League\BooBoo\Formatter\CommandLineFormatter;
+        }
+
         $null = new \League\BooBoo\Formatter\NullFormatter;
 
-        $html->setErrorLimit(E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING);
+        if($this->getOption('production')) {
+            $aFtr->setErrorLimit(E_ERROR | E_USER_ERROR);
+        } else {
+            $aFtr->setErrorLimit(E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING);
+        }
         $null->setErrorLimit(E_ALL);
 
         $runner->pushFormatter($null);
-        $runner->pushFormatter($html);
+        $runner->pushFormatter($aFtr);
 
         if(
             !isset($this->container['sentry']) ||
@@ -81,7 +90,20 @@ class App implements \ArrayAccess {
             !isset($this->container['env'])
             || is_null($this->container['env'])
         ) {
-            $this->container['env'] = new HttpEnvironment();
+            if(
+                $this->getMode() == self::MODE_HTTP ||
+                $this->isRunningUnitTests()
+            ) {
+                try {
+                    $this->getOption('base_url');
+                } catch(\Exception $e) {
+                    throw new InternalException('base_url must be set when running in a HTTP or Unit Test environment');
+                }
+
+                $this->container['env'] = new HttpEnvironment();
+            } else {
+                $this->container['env'] = new CliEnvironment();
+            }
         }
 
         if(
@@ -89,10 +111,10 @@ class App implements \ArrayAccess {
             is_null($this->container['akismet'])
         ) {
             // Initialize Akismet
-            if(LOCAL) {
-                $connector = new \Riv\Service\Akismet\Connector\Test();
-            } else {
+            if(self::$options['production']) {
                 $connector = new \Riv\Service\Akismet\Connector\Curl();
+            } else {
+                $connector = new \Riv\Service\Akismet\Connector\Test();
             }
 
             $this->container['akismet'] = new \Riv\Service\Akismet\Akismet($connector);
@@ -111,11 +133,11 @@ class App implements \ArrayAccess {
             !isset($this->container['cache']) ||
             is_null($this->container['cache'])
         ) {
-            if(LOCAL) {
+            if(!(self::$options['production'])) {
                 $driver = new \Stash\Driver\BlackHole();
             } else {
-                if(defined('CACHE_FOLDER')) {
-                    $driver = new \Stash\Driver\FileSystem(array('path' => CACHE_FOLDER));
+                if(!isset(self::$options['stash_cache_folder'])) {
+                    $driver = new \Stash\Driver\FileSystem(array('path' => self::$options['stash_cache_folder']));
                 } else {
                     $driver = new \Stash\Driver\FileSystem();
                 }
@@ -173,7 +195,7 @@ class App implements \ArrayAccess {
         }
     }
 
-    public function isUnderTest() {
+    public function isRunningUnitTests() {
         try {
             return $this->getOption('unit_tests');
         } catch(\Exception $e) {
@@ -221,7 +243,6 @@ class App implements \ArrayAccess {
      * Get option
      *
      * @param string $key - option key
-     * @param mixed $default - value to return if not defined [optional]
      *
      * @return mixed option
      */
