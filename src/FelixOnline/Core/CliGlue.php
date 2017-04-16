@@ -83,7 +83,7 @@ class CliGlue implements GlueInterface {
         $runHelp = false;
 
         if($request['CountArguments'] == 0) {
-            $this->climate->error('This command does not exist (try running help).');
+            $this->climate->error('Please specify a command. (try running help.)');
             return 65; // EX_DATAERR per BSD sysexits.h
         }
 
@@ -100,17 +100,63 @@ class CliGlue implements GlueInterface {
         } else {
             if(!array_key_exists($method, $this->routes)) {
                 // no routes msg
-                $this->climate->error('This command does not exist.');
+                $this->climate->error('This command does not exist. (Try running help.)');
                 return 65; // EX_DATAERR per BSD sysexits.h
             }
         }
 
         if($runHelp) {
-            // help
-            $climate = $this->climate;
-            $climate->bold('CLI Command Reference');
-            $climate->out('The following commands have been defined.');
-            $climate->table($this->routes);
+            $app = App::getInstance();
+            $appName = $app->getOption('app_name');
+            $appVer = $app->getOption('app_version');
+
+            if($request['CountArguments'] == 1) {
+                // general help
+                $climate = $this->climate;
+                $climate->bold('CLI Command Reference - '.$appName.' '.$appVer);
+                $climate->out('The following commands have been defined.');
+                $climate->nl();
+
+                if($app->getOption('production')) {
+                    $routes = array();
+                    foreach($this->routes as $route) {
+                        $routes[] = array(
+                            'Command' => $route['Command'],
+                            'Description' => $route['Description']
+                        );
+                    }
+                    $climate->table($routes);
+                } else {
+                    $climate->table($this->routes);
+                }
+
+                $climate->nl();
+                $climate->out('For usage information for a command, run <bold>help <command></bold>.');
+            } else {
+                $helpMethod = $request['Arguments'][1];
+
+                if($helpMethod == 'help') {
+                    $this->climate->description('Displays details on installed commands and their usage.');
+
+                    $climate = $this->climate;
+                } else {
+                    if(!array_key_exists($helpMethod, $this->routes)) {
+                        // no routes msg
+                        $this->climate->error('This command does not exist. (Try running help.)');
+                        return 65; // EX_DATAERR per BSD sysexits.h
+                    }
+
+                    $this->climate->description($this->routes[$helpMethod]['Description']);
+
+                    $class = new $this->routes[$helpMethod]['Class']($this->climate);
+                    $classMethod = $this->routes[$helpMethod]['Method'];
+
+                    // Special case of array(), true just sets up climate with parameters and returns
+                    $climate = $class->$classMethod(array(), true);
+                }
+
+                $climate->usage();
+            }
 
             return 64; // EX_USAGE per BSD sysexits.h
         }
@@ -121,7 +167,7 @@ class CliGlue implements GlueInterface {
             $response = $class->$classMethod($request['Arguments']);
         } catch(\Exception $e) {
             // last resort
-            $this->climate->error('Fatal error: '.$e->getMessage());
+            $this->climate->error($e->getMessage().' (Try <bold>help '.$method.'</bold> for usage.)');
             $response = 70; // EX_SOFTWARE per BSD sysexits.h
         }
 
