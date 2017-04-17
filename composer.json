@@ -46,8 +46,8 @@
     },
     "autoload": {
         "psr-4": {
-            "FelixOnline\\Core\\": "src/FelixOnline/Core",
-            "FelixOnline\\Core\\Type\\": "src/FelixOnline/Core/Type",
+            "FelixOnline\\Base\\": "src/FelixOnline/Base",
+            "FelixOnline\\Base\\Type\\": "src/FelixOnline/Base/Type",
             "FelixOnline\\Exceptions\\": "src/FelixOnline/Exceptions"
         },
         "classmap": [

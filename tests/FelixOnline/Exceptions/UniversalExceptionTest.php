@@ -29,7 +29,7 @@ class UniversalExceptionTest extends AppTestCase
     }
 
     public function testExceptionHasUser() {
-        $currentUser = \FelixOnline\Core\App::getInstance()['currentuser'];
+        $currentUser = \FelixOnline\Base\App::getInstance()['currentuser'];
 
         $exception = new \FelixOnline\Exceptions\UniversalException('foo');
         $this->assertSame($exception->getUser(), $currentUser);

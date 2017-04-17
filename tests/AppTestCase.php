@@ -33,9 +33,9 @@ class AppTestCase extends DatabaseTestCase {
             'production' => false
         );
 
-        $app = new \FelixOnline\Core\App($config);
+        $app = new \FelixOnline\Base\App($config);
 
-        $app['env'] = new \FelixOnline\Core\HttpEnvironment();
+        $app['env'] = new \FelixOnline\Base\HttpEnvironment();
 
         // Initialize Akismet
         $connector = new \Riv\Service\Akismet\Connector\Test();
@@ -45,7 +45,7 @@ class AppTestCase extends DatabaseTestCase {
         $transport = \Swift_NullTransport::newInstance();
         $app['email'] = \Swift_Mailer::newInstance($transport);
 
-        $session = $this->mock('FelixOnline\\Core\\Session')
+        $session = $this->mock('FelixOnline\\Base\\Session')
             ->getId(1)
             ->start(1)
             ->reset()
@@ -57,7 +57,7 @@ class AppTestCase extends DatabaseTestCase {
         $app['env']['session'] = $session;
 
         if ($this->setCurrentUser) {
-            $app['currentuser'] = new \FelixOnline\Core\StubCurrentUser();
+            $app['currentuser'] = new \FelixOnline\Base\StubCurrentUser();
         }
 
         // Set empty cache so data isn't cached in tests
@@ -74,10 +74,10 @@ class AppTestCase extends DatabaseTestCase {
     public function tearDown() {
         parent::tearDown();
 
-        $app = \FelixOnline\Core\App::getInstance();
+        $app = \FelixOnline\Base\App::getInstance();
 
         $app['db']->dbh->close();
 
-        \FelixOnline\Core\App::setInstance(null);
+        \FelixOnline\Base\App::setInstance(null);
     }
 }

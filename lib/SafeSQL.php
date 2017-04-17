@@ -42,7 +42,7 @@ class SafeSQL
     \*======================================================================*/
     function query($query_string, $query_vars)
     {
-        $app = \FelixOnline\Core\App::getInstance();
+        $app = \FelixOnline\Base\App::getInstance();
         $link_id = $app['db']->dbh;
 
         if(is_array($query_vars)) {
