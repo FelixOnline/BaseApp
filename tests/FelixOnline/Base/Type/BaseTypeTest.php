@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../../../AppTestCase.php';
-//require_once __DIR__ . '/../../../utilities.php';
 
 class BaseTypeTest extends AppTestCase
 {

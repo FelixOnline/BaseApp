@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/DatabaseTestCase.php';
-require_once __DIR__ . '/../lib/SafeSQL.php';
 
 /**
  * App test case - extend from this for anything requiring the App class.

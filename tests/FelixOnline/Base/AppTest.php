@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../../../lib/SafeSQL.php';
 require_once __DIR__ . '/../../DatabaseTestCase.php';
 
 /*

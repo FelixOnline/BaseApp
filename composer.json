@@ -15,7 +15,6 @@
     "repositories": [
     ],
     "require": {
-        "robmorgan/phinx": "@stable",
         "rzekanet/service-akismet": "@stable",
         "jv2222/ezsql": "dev-master",
         "tedivm/stash": "@stable",
@@ -51,7 +50,9 @@
             "FelixOnline\\Exceptions\\": "src/FelixOnline/Exceptions"
         },
         "classmap": [
-            "lib/SafeSQL.php",
+            "lib/SafeSQL.php"
+        ],
+        "files": [
             "lib/constants.php"
         ]
     }

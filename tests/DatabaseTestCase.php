@@ -1,5 +1,5 @@
 <?php
-require('lib/constants.php');
+//require('lib/constants.php');
 
 class DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
