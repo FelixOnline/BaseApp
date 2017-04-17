@@ -60,45 +60,51 @@ class App implements \ArrayAccess
      */
     public function run()
     {
-        $runner = new \League\BooBoo\Runner();
+        if (!$this->isRunningUnitTests())
+        {
+            $runner = new \League\BooBoo\Runner();
 
-        if ($this->getMode() == self::MODE_HTTP) {
-            $aFtr = new \League\BooBoo\Formatter\HtmlTableFormatter;
-        } else {
-            $aFtr = new \League\BooBoo\Formatter\CommandLineFormatter;
-        }
-
-        $null = new \League\BooBoo\Formatter\NullFormatter;
-
-        if ($this->getOption('production')) {
-            $aFtr->setErrorLimit(E_ERROR | E_USER_ERROR);
-        } else {
-            $aFtr->setErrorLimit(E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING);
-        }
-        $null->setErrorLimit(E_ALL);
-
-        $runner->pushFormatter($null);
-        $runner->pushFormatter($aFtr);
-
-        if (
-            !isset($this->container['sentry']) ||
-            !($this->container['sentry'] instanceof \Raven_Client)
-        ) {
-            if (!isset(self::$options['sentry_dsn'])) {
-                $dsn = '';
+            if ($this->getMode() == self::MODE_HTTP) {
+                $aFtr = new \League\BooBoo\Formatter\HtmlTableFormatter;
             } else {
-                $dsn = self::$options['sentry_dsn'];
+                $aFtr = new \League\BooBoo\Formatter\CommandLineFormatter;
             }
 
-            $app['sentry'] = new \Raven_Client($dsn);
+            $null = new \League\BooBoo\Formatter\NullFormatter;
+
+            if ($this->getOption('production')) {
+                $aFtr->setErrorLimit(E_ERROR | E_USER_ERROR);
+            } else {
+                $aFtr->setErrorLimit(E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING);
+            }
+            $null->setErrorLimit(E_ALL);
+
+            $runner->pushFormatter($null);
+            $runner->pushFormatter($aFtr);
+
+            if (
+                !isset($this->container['sentry']) ||
+                !($this->container['sentry'] instanceof \Raven_Client)
+            ) {
+                if (!isset(self::$options['sentry_dsn'])) {
+                    $dsn = '';
+                } else {
+                    $dsn = self::$options['sentry_dsn'];
+                }
+
+                $app['sentry'] = new \Raven_Client($dsn);
+            }
+
+            $raven = new \League\BooBoo\Handler\RavenHandler($app['sentry']);
+            $runner->pushHandler($raven);
+
+            $runner->register();
+
+            $this->container['booboo'] = $runner;
+        } else {
+            $this->container['booboo'] = null;
+            $this->container['sentry'] = null;
         }
-
-        $raven = new \League\BooBoo\Handler\RavenHandler($app['sentry']);
-        $runner->pushHandler($raven);
-
-        $runner->register();
-
-        $this->container['booboo'] = $runner;
 
         if (
             !isset($this->container['env'])
