@@ -1,5 +1,6 @@
 <?php
 namespace FelixOnline\Base\Type;
 
-class TextField extends BaseType {
+class TextField extends BaseType
+{
 }

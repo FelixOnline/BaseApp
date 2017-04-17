@@ -4,14 +4,16 @@ require_once __DIR__ . '/../../AppTestCase.php';
 
 class UniversalExceptionTest extends AppTestCase
 {
-    public function testException() {
+    public function testException()
+    {
         $this->setExpectedException(
             'FelixOnline\Exceptions\UniversalException'
         );
         throw new \FelixOnline\Exceptions\UniversalException('foo');
     }
 
-    public function testExceptionMessage() {
+    public function testExceptionMessage()
+    {
         $this->setExpectedException(
             'FelixOnline\Exceptions\UniversalException',
             'foo'
@@ -19,7 +21,8 @@ class UniversalExceptionTest extends AppTestCase
         throw new \FelixOnline\Exceptions\UniversalException('foo');
     }
 
-    public function testExceptionCode() {
+    public function testExceptionCode()
+    {
         $this->setExpectedException(
             'FelixOnline\Exceptions\UniversalException',
             'foo',
@@ -28,7 +31,8 @@ class UniversalExceptionTest extends AppTestCase
         throw new \FelixOnline\Exceptions\UniversalException('foo');
     }
 
-    public function testExceptionHasUser() {
+    public function testExceptionHasUser()
+    {
         $currentUser = \FelixOnline\Base\App::getInstance()['currentuser'];
 
         $exception = new \FelixOnline\Exceptions\UniversalException('foo');

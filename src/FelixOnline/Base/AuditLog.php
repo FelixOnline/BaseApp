@@ -1,5 +1,6 @@
 <?php
 namespace FelixOnline\Base;
+
 /*
  * Audit Log class
  */
@@ -7,7 +8,8 @@ class AuditLog extends BaseDB
 {
     public $dbtable = 'audit_log';
 
-    function __construct($id = NULL, $rowData = null) {
+    public function __construct($id = null, $rowData = null)
+    {
         $fields = array(
             'timestamp' => new Type\DateTimeField(),
             'table' => new Type\CharField(),

@@ -74,7 +74,7 @@ class BaseDBTest extends AppTestCase
         $fields = array(
             'foo' => (new CharField())->setValue('bar'), // string
             'fizz' => (new IntegerField())->setValue(1), // number
-            'buzz' => (new CharField())->setValue(NULL), // null
+            'buzz' => (new CharField())->setValue(null), // null
             'empty' => (new CharField())->setValue(''), // empty
         );
 
@@ -97,7 +97,7 @@ class BaseDBTest extends AppTestCase
             'id' => (new IntegerField())->setValue(1),
             'foo' => (new CharField())->setValue('bar'), // string
             'fizz' => (new IntegerField())->setValue(1), // number
-            'buzz' => (new CharField())->setValue(NULL), // null
+            'buzz' => (new CharField())->setValue(null), // null
             'empty' => (new CharField())->setValue(''), // empty
         );
 

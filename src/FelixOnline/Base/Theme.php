@@ -5,7 +5,8 @@ namespace FelixOnline\Base;
  * Theme class
  * Handles rendering views etc
  */
-class Theme {
+class Theme
+{
     protected $name; // theme name
     protected $directory; // theme directory
     protected $url;
@@ -17,7 +18,8 @@ class Theme {
     protected $site; // current site
     protected $themeclass; // theme specific class
 
-    function __construct($name) {
+    public function __construct($name)
+    {
         $app = App::getInstance();
         $currentuser = $app['currentuser'];
 
@@ -30,7 +32,7 @@ class Theme {
          */
         $classfile = $this->directory.'/core/theme-'.$this->name.'.class.php';
         $name = 'Theme'.ucfirst($this->name);
-        if(file_exists($classfile) && get_class($this) != $name) {
+        if (file_exists($classfile) && get_class($this) != $name) {
             require_once($classfile);
             $this->themeclass = new $name($this->name);
         } else {
@@ -44,16 +46,30 @@ class Theme {
         }
     }
 
-    public function getClass() { return $this->themeclass; }
-    public function getName() { return $this->name; }
-    public function getDirectory() { return $this->directory; }
-    public function getURL() { return $this->url; }
+    public function getClass()
+    {
+        return $this->themeclass;
+    }
+    public function getName()
+    {
+        return $this->name;
+    }
+    public function getDirectory()
+    {
+        return $this->directory;
+    }
+    public function getURL()
+    {
+        return $this->url;
+    }
 
-    public function appendData($array) {
+    public function appendData($array)
+    {
         $this->data = array_merge($this->data, $array);
     }
 
-    public function setHierarchy($hierarchy) {
+    public function setHierarchy($hierarchy)
+    {
         return $this->hierarchy = $hierarchy;
     }
 
@@ -63,9 +79,12 @@ class Theme {
      * $page - page to render
      * $data - data to include with render [array]
      */
-    public function render($page, $data = NULL) {
-        if($data) $this->appendData($data);
-        if(!$this->parent) {
+    public function render($page, $data = null)
+    {
+        if ($data) {
+            $this->appendData($data);
+        }
+        if (!$this->parent) {
             $this->parent = $page;
         }
         $this->page = $page;
@@ -75,9 +94,10 @@ class Theme {
     /*
      * Private: Include page in enclosed function
      */
-    private function includePage($themePage) {
+    private function includePage($themePage)
+    {
         $themeData = $this->data;
-        call_user_func(function() use($themeData, $themePage) {
+        call_user_func(function () use ($themeData, $themePage) {
             extract($themeData);
             include($this->directory.'/'.$themePage.'.php');
         });
@@ -88,11 +108,12 @@ class Theme {
      *
      * Returns matched page
      */
-    private function cascade() {
-        if($this->hierarchy) { // if there is a hierarchy defined
-            foreach($this->hierarchy as $key => $value) { // loop through each hierarchy
+    private function cascade()
+    {
+        if ($this->hierarchy) { // if there is a hierarchy defined
+            foreach ($this->hierarchy as $key => $value) { // loop through each hierarchy
                 $file = $this->page . '-' . $value;
-                if($this->fileExists($file)) { // if that file exists then return it
+                if ($this->fileExists($file)) { // if that file exists then return it
                     $this->hierarchy = array(); // reset hierarchy for further renders
                     return $file;
                 }
@@ -105,7 +126,8 @@ class Theme {
     /*
      * Private: Check whether file exists
      */
-    private function fileExists($file) {
+    private function fileExists($file)
+    {
         return file_exists($this->directory.'/'.$file.'.php');
     }
 
@@ -115,7 +137,8 @@ class Theme {
      * $ucfirst - If true, capitalise the first char in $str
      * Returns string - $str translated into camel caps
      */
-    private function toCamelCase($str, $ucfirst = true) {
+    private function toCamelCase($str, $ucfirst = true)
+    {
         $parts = explode('-', $str);
         $parts = $parts ? array_map('ucfirst', $parts) : array($str);
         $parts[0] = $ucfirst ? ucfirst($parts[0]) : lcfirst($parts[0]);
@@ -125,16 +148,21 @@ class Theme {
     /*
      * Public: Check if current view is $query
      */
-    public function isPage($query) {
-        if($query == $this->parent) return true;
-        else return false;
+    public function isPage($query)
+    {
+        if ($query == $this->parent) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /*
      * Public: Set sidebar modules
      * Overrides any previous sidebar modules
      */
-    public function setSidebar($modules) {
+    public function setSidebar($modules)
+    {
         $this->sidebar = $modules;
         return $this->sidebar;
     }
@@ -142,12 +170,13 @@ class Theme {
     /*
      * Public: Render sidebar with set modules
      */
-    public function renderSidebar() {
-        if(!$this->sidebar || empty($this->sidebar)) {
+    public function renderSidebar()
+    {
+        if (!$this->sidebar || empty($this->sidebar)) {
             throw new InternalException('No sidebar modules set');
             return false;
         }
-        foreach($this->sidebar as $key => $module) {
+        foreach ($this->sidebar as $key => $module) {
             $this->render('sidebar/'.$module);
         }
     }
@@ -155,7 +184,8 @@ class Theme {
     /*
      * Public: Get sidebar
      */
-    public function getSidebar() {
+    public function getSidebar()
+    {
         return $this->sidebar;
     }
 
@@ -163,7 +193,8 @@ class Theme {
      * Public: Add module to end of sidebar
      * Add a new module to the end of sidebar
      */
-    public function addSidebarEnd($module) {
+    public function addSidebarEnd($module)
+    {
         array_push($this->sidebar, $module);
         return $this->sidebar;
     }
@@ -172,7 +203,8 @@ class Theme {
      * Public: Add module to beginning of sidebar
      * Add a new module to the beginning of sidebar
      */
-    public function addSidebarBeginning($module) {
+    public function addSidebarBeginning($module)
+    {
         array_unshift($this->sidebar, $module);
         return $this->sidebar;
     }
@@ -182,17 +214,20 @@ class Theme {
      *
      * Returns site
      */
-    public function setSite($site) {
+    public function setSite($site)
+    {
         return $this->site = $site;
     }
 
-    public function getSite() {
+    public function getSite()
+    {
         return $site;
     }
 
-    public function isSite($site) {
+    public function isSite($site)
+    {
         $return = false;
-        if($site == $this->site) {
+        if ($site == $this->site) {
             $return = true;
         }
         return $return;

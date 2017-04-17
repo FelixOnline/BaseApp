@@ -10,20 +10,24 @@ namespace FelixOnline\Base;
 use FelixOnline\Exceptions\GlueInternalException;
 use FelixOnline\Exceptions\GlueMethodException;
 
-class HttpGlue implements GlueInterface {
+class HttpGlue implements GlueInterface
+{
     private $router;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->router = new \League\Route\RouteCollection();
     }
 
-    public function addMiddleware($middleware) {
+    public function addMiddleware($middleware)
+    {
         $this->router->middleware($middleware);
     }
 
-    public function mapRoute($method, $path, $class, $classMethod, $middleware = false) {
+    public function mapRoute($method, $path, $class, $classMethod, $middleware = false)
+    {
         // Check that handler exists
-        if(!class_exists($class)) {
+        if (!class_exists($class)) {
             throw new GlueInternalException(
                 'Class does not exist.',
                 $path,
@@ -33,7 +37,7 @@ class HttpGlue implements GlueInterface {
         }
 
         $obj = new $class;
-        if(!method_exists($obj, $classMethod)) {
+        if (!method_exists($obj, $classMethod)) {
             throw new GlueMethodException(
                 'Method does not exist in.',
                 $path,
@@ -44,9 +48,9 @@ class HttpGlue implements GlueInterface {
 
         $route = $this->router->map($method, $path, [new $class, $classMethod]);
 
-        if($middleware) {
-            if(is_array($middleware)) {
-                foreach($middleware as $m) {
+        if ($middleware) {
+            if (is_array($middleware)) {
+                foreach ($middleware as $m) {
                     $route->middleware($m);
                 }
             } else {
@@ -55,7 +59,8 @@ class HttpGlue implements GlueInterface {
         }
     }
 
-    public function mapRoutes(array $routes) {
+    public function mapRoutes(array $routes)
+    {
         /*
          * 0: method
          * 1: path
@@ -64,13 +69,14 @@ class HttpGlue implements GlueInterface {
          * 4: middleware
          */
 
-        foreach($routes as $route) {
+        foreach ($routes as $route) {
             $this->mapRoute($route[0], $route[1], $route[2], $route[3], $route[4]);
         }
     }
 
-    public function dispatch($request, $response) {
-        if(
+    public function dispatch($request, $response)
+    {
+        if (
             !($request instanceof \Psr\Http\Message\ServerRequestInterface) ||
             !($response instanceof \Psr\Http\Message\ResponseInterface)
         ) {

@@ -6,10 +6,12 @@ require_once __DIR__ . '/../../DatabaseTestCase.php';
  * As this is a test of the App class, we cannot rely on its operation, and
  * therefore we don't extend AppTestCase.
  */
-class AppTest extends DatabaseTestCase {
+class AppTest extends DatabaseTestCase
+{
     use \Xpmock\TestCaseTrait;
 
-    public function createApp($config) {
+    public function createApp($config)
+    {
         $app = new \FelixOnline\Base\App($config);
 
         $app['env'] = new \FelixOnline\Base\HttpEnvironment();
@@ -30,7 +32,8 @@ class AppTest extends DatabaseTestCase {
         return $app;
     }
 
-    public function testApp() {
+    public function testApp()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
@@ -46,8 +49,8 @@ class AppTest extends DatabaseTestCase {
         $this->assertInstanceOf('FelixOnline\Base\App', $app);
     }
 
-    public function testAppWithCacheFolder() {
-
+    public function testAppWithCacheFolder()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
@@ -64,7 +67,8 @@ class AppTest extends DatabaseTestCase {
         $this->assertInstanceOf('FelixOnline\Base\App', $app);
     }
 
-    public function testSingleton() {
+    public function testSingleton()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
@@ -81,7 +85,8 @@ class AppTest extends DatabaseTestCase {
         $this->assertEquals($app, \FelixOnline\Base\App::getInstance());
     }
 
-    public function testAccessBeforeInit() {
+    public function testAccessBeforeInit()
+    {
         \FelixOnline\Base\App::setInstance(null);
 
         $this->setExpectedException(
@@ -92,7 +97,8 @@ class AppTest extends DatabaseTestCase {
         $app = \FelixOnline\Base\App::getInstance();
     }
 
-    public function testRequiredOptions() {
+    public function testRequiredOptions()
+    {
         $this->setExpectedException(
             'Exception',
             '"db_name" option has not been defined'
@@ -101,7 +107,8 @@ class AppTest extends DatabaseTestCase {
         $app = $this->createApp(array());
     }
 
-    public function testGetOption() {
+    public function testGetOption()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
@@ -118,7 +125,8 @@ class AppTest extends DatabaseTestCase {
         $this->assertEquals($app->getOption('base_url'), 'http://localhost/');
     }
 
-    public function testGetOptionDefault() {
+    public function testGetOptionDefault()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
@@ -135,7 +143,8 @@ class AppTest extends DatabaseTestCase {
         $this->assertEquals($app->getOption('foo', 'bar'), 'bar');
     }
 
-    public function testGetOptionException() {
+    public function testGetOptionException()
+    {
         $this->setExpectedException(
             'FelixOnline\Exceptions\InternalException',
             'Option "bar" has not been set'
@@ -157,7 +166,8 @@ class AppTest extends DatabaseTestCase {
         $app->getOption('bar');
     }
 
-    public function testRunInvalidDBDetailsException() {
+    public function testRunInvalidDBDetailsException()
+    {
         \FelixOnline\Base\App::setInstance(null);
 
         $this->setExpectedException(
@@ -181,7 +191,8 @@ class AppTest extends DatabaseTestCase {
         $app->run();
     }
 
-    public function testQuery() {
+    public function testQuery()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
@@ -202,7 +213,8 @@ class AppTest extends DatabaseTestCase {
         );
     }
 
-    public function testNotSetException() {
+    public function testNotSetException()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 
@@ -226,7 +238,8 @@ class AppTest extends DatabaseTestCase {
         $app['foo'];
     }
 
-    public function testUnset() {
+    public function testUnset()
+    {
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
         $dbpass = getenv('DB_PASS') ? getenv('DB_PASS') : '';
 

@@ -1,16 +1,19 @@
 <?php
 namespace FelixOnline\Base;
+
 /*
  * Base model class
  *
  * Creates dynamic getter functions for model fields
  */
-class BaseModel {
+class BaseModel
+{
     public $fields = array(); // array that holds all the database fields
     protected $class;
     protected $item;
 
-    function __construct($fields, $item = NULL) {
+    public function __construct($fields, $item = null)
+    {
         $this->class = get_class($this);
         $this->item = $item;
 
@@ -22,12 +25,13 @@ class BaseModel {
     /*
      * Create dynamic functions
      */
-    function __call($method,$arguments) {
-        $meth = $this->from_camel_case(substr($method,3,strlen($method)-3));
+    public function __call($method, $arguments)
+    {
+        $meth = $this->from_camel_case(substr($method, 3, strlen($method)-3));
         $verb = substr($method, 0, 3);
-        switch($verb) {
+        switch ($verb) {
             case 'get':
-                if(array_key_exists($meth, $this->fields)) {
+                if (array_key_exists($meth, $this->fields)) {
                     return $this->fields[$meth]->getValue();
                 }
                 throw new \FelixOnline\Exceptions\ModelConfigurationException(
@@ -74,7 +78,8 @@ class BaseModel {
     /*
      * Public: Get all fields
      */
-    public function getFields() {
+    public function getFields()
+    {
         return $this->fields;
     }
 }

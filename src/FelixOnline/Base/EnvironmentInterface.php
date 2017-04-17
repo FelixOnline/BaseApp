@@ -1,7 +1,8 @@
 <?php
 namespace FelixOnline\Base;
 
-interface EnvironmentInterface {
+interface EnvironmentInterface
+{
     public function getGlue();
     public function getResponse();
     public function setResponse($response);

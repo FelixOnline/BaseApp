@@ -7,7 +7,8 @@ use FelixOnline\Exceptions\DBConnectionException;
 /**
  * App class
  */
-class App implements \ArrayAccess {
+class App implements \ArrayAccess
+{
     protected static $instance = null;
     protected static $options = array();
     protected $container;
@@ -37,15 +38,15 @@ class App implements \ArrayAccess {
         $this->checkOptions($options);
         self::$options = $options;
 
-        if(!isset(self::$options['app_name'])) {
+        if (!isset(self::$options['app_name'])) {
             self::$options['app_name'] = 'BaseApp';
         }
 
-        if(!isset(self::$options['app_version'])) {
+        if (!isset(self::$options['app_version'])) {
             self::$options['app_version'] = '0.10pre';
         }
 
-        if(!isset(self::$options['app_author'])) {
+        if (!isset(self::$options['app_author'])) {
             self::$options['app_author'] = 'Felix Online';
         }
 
@@ -57,10 +58,11 @@ class App implements \ArrayAccess {
     /**
      * Initialize app
      */
-    public function run() {
+    public function run()
+    {
         $runner = new \League\BooBoo\Runner();
 
-        if($this->getMode() == self::MODE_HTTP) {
+        if ($this->getMode() == self::MODE_HTTP) {
             $aFtr = new \League\BooBoo\Formatter\HtmlTableFormatter;
         } else {
             $aFtr = new \League\BooBoo\Formatter\CommandLineFormatter;
@@ -68,7 +70,7 @@ class App implements \ArrayAccess {
 
         $null = new \League\BooBoo\Formatter\NullFormatter;
 
-        if($this->getOption('production')) {
+        if ($this->getOption('production')) {
             $aFtr->setErrorLimit(E_ERROR | E_USER_ERROR);
         } else {
             $aFtr->setErrorLimit(E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING);
@@ -78,11 +80,11 @@ class App implements \ArrayAccess {
         $runner->pushFormatter($null);
         $runner->pushFormatter($aFtr);
 
-        if(
+        if (
             !isset($this->container['sentry']) ||
             !($this->container['sentry'] instanceof \Raven_Client)
         ) {
-            if(!isset(self::$options['sentry_dsn'])) {
+            if (!isset(self::$options['sentry_dsn'])) {
                 $dsn = '';
             } else {
                 $dsn = self::$options['sentry_dsn'];
@@ -98,17 +100,17 @@ class App implements \ArrayAccess {
 
         $this->container['booboo'] = $runner;
 
-        if(
+        if (
             !isset($this->container['env'])
             || is_null($this->container['env'])
         ) {
-            if(
+            if (
                 $this->getMode() == self::MODE_HTTP ||
                 $this->isRunningUnitTests()
             ) {
                 try {
                     $this->getOption('base_url');
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     throw new InternalException('base_url must be set when running in a HTTP or Unit Test environment');
                 }
 
@@ -118,12 +120,12 @@ class App implements \ArrayAccess {
             }
         }
 
-        if(
+        if (
             !isset($this->container['akismet']) ||
             is_null($this->container['akismet'])
         ) {
             // Initialize Akismet
-            if(self::$options['production']) {
+            if (self::$options['production']) {
                 $connector = new \Riv\Service\Akismet\Connector\Curl();
             } else {
                 $connector = new \Riv\Service\Akismet\Connector\Test();
@@ -132,7 +134,7 @@ class App implements \ArrayAccess {
             $this->container['akismet'] = new \Riv\Service\Akismet\Akismet($connector);
         }
 
-        if(
+        if (
             !isset($this->container['email']) ||
             is_null($this->container['email'])
         ) {
@@ -141,14 +143,14 @@ class App implements \ArrayAccess {
             $this->container['email'] = \Swift_Mailer::newInstance($transport);
         }
 
-        if(
+        if (
             !isset($this->container['cache']) ||
             is_null($this->container['cache'])
         ) {
-            if(!(self::$options['production'])) {
+            if (!(self::$options['production'])) {
                 $driver = new \Stash\Driver\BlackHole();
             } else {
-                if(!isset(self::$options['stash_cache_folder'])) {
+                if (!isset(self::$options['stash_cache_folder'])) {
                     $driver = new \Stash\Driver\FileSystem(array('path' => self::$options['stash_cache_folder']));
                 } else {
                     $driver = new \Stash\Driver\FileSystem();
@@ -158,7 +160,7 @@ class App implements \ArrayAccess {
             $this->container['cache'] = new \Stash\Pool($driver);
         }
 
-        if(
+        if (
             !isset($this->container['currentuser'])
             || is_null($this->container['currentuser'])
             || !($this->container['currentuser'] instanceof AbstractCurrentUser)
@@ -166,7 +168,7 @@ class App implements \ArrayAccess {
             $this->container['currentuser'] = new StubCurrentUser();
         }
 
-        if(
+        if (
             !isset($this->container['db']) ||
             !($this->container['db'] instanceof \ezSQL_mysqli)
         ) {
@@ -180,7 +182,7 @@ class App implements \ArrayAccess {
                 'utf8'
             );
 
-            if(!$status) {
+            if (!$status) {
                 throw new DBConnectionException('Could not connect to database');
             }
 
@@ -191,7 +193,7 @@ class App implements \ArrayAccess {
             $this->container['db_log'] = array();
         }
 
-        if(
+        if (
             !isset($this->container['safesql']) ||
             !($this->container['safesql'] instanceof \SafeSQL_MySQLi)
         ) {
@@ -199,18 +201,20 @@ class App implements \ArrayAccess {
         }
     }
 
-    public function getMode() {
-        if(php_sapi_name() == "cli") {
+    public function getMode()
+    {
+        if (php_sapi_name() == "cli") {
             return self::MODE_CLI;
         } else {
             return self::MODE_HTTP;
         }
     }
 
-    public function isRunningUnitTests() {
+    public function isRunningUnitTests()
+    {
         try {
             return $this->getOption('unit_tests');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }
@@ -220,9 +224,10 @@ class App implements \ArrayAccess {
      *
      * Throws Exception if option is not defined
      */
-    private function checkOptions($options) {
-        foreach($this->required as $req) {
-            if(!array_key_exists($req, $options)) {
+    private function checkOptions($options)
+    {
+        foreach ($this->required as $req) {
+            if (!array_key_exists($req, $options)) {
                 throw new \Exception('"' . $req . '" option has not been defined');
             }
         }
@@ -233,8 +238,9 @@ class App implements \ArrayAccess {
      *
      * @return instance
      */
-    public static function getInstance() {
-        if(is_null(self::$instance)) {
+    public static function getInstance()
+    {
+        if (is_null(self::$instance)) {
             throw new \Exception('App has not been initialised yet');
         }
         return self::$instance;
@@ -247,7 +253,8 @@ class App implements \ArrayAccess {
      *
      * @return void
      */
-    public static function setInstance($instance) {
+    public static function setInstance($instance)
+    {
         self::$instance = $instance;
     }
 
@@ -258,7 +265,8 @@ class App implements \ArrayAccess {
      *
      * @return mixed option
      */
-    public function getOption($key) {
+    public function getOption($key)
+    {
         if (!array_key_exists($key, self::$options)) {
             // if a default has been defined
             if (func_num_args() > 1) {
@@ -270,20 +278,24 @@ class App implements \ArrayAccess {
         return self::$options[$key];
     }
 
-    public function offsetSet($offset, $value) {
+    public function offsetSet($offset, $value)
+    {
         $this->container[$offset] = $value;
     }
 
-    public function offsetExists($offset) {
+    public function offsetExists($offset)
+    {
         return isset($this->container[$offset]);
     }
 
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset)
+    {
         unset($this->container[$offset]);
     }
 
-    public function offsetGet($offset) {
-        if(!isset($this->container[$offset])) {
+    public function offsetGet($offset)
+    {
+        if (!isset($this->container[$offset])) {
             throw new InternalException('Key "' . $offset . '" is not set');
         }
         return $this->container[$offset];

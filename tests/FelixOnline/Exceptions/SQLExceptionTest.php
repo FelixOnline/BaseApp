@@ -4,7 +4,8 @@ require_once __DIR__ . '/../../AppTestCase.php';
 
 class SQLExceptionTest extends AppTestCase
 {
-    public function testException() {
+    public function testException()
+    {
         $this->setExpectedException(
             'FelixOnline\Exceptions\SQLException',
             'Error 1'
@@ -12,7 +13,8 @@ class SQLExceptionTest extends AppTestCase
         throw new \FelixOnline\Exceptions\SQLException("Error 1", "Error 2");
     }
 
-    public function testExceptionCode() {
+    public function testExceptionCode()
+    {
         $this->setExpectedException(
             'FelixOnline\Exceptions\SQLException',
             'Error 1',
@@ -21,7 +23,8 @@ class SQLExceptionTest extends AppTestCase
         throw new \FelixOnline\Exceptions\SQLException("Error 1", "Error 2");
     }
 
-    public function testExceptionQuery() {
+    public function testExceptionQuery()
+    {
         $exception2 = new \FelixOnline\Exceptions\SQLException(
             "Error 1",
             "Error 2"

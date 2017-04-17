@@ -1,7 +1,8 @@
 <?php
 namespace FelixOnline\Base;
 
-class RSSFeed {
+class RSSFeed
+{
     private $channel_url;
     private $channel_title;
     private $channel_description;
@@ -16,7 +17,8 @@ class RSSFeed {
     private $items = array();
     private $nritems;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->nritems=0;
         $this->channel_url='';
         $this->channel_title='';
@@ -29,7 +31,8 @@ class RSSFeed {
         $this->image_url='';
     }
 
-    public function setChannel($url, $title, $description, $lang, $copyright, $creator) {
+    public function setChannel($url, $title, $description, $lang, $copyright, $creator)
+    {
         $this->channel_url=$url;
         $this->channel_title=$title;
         $this->channel_description=$description;
@@ -41,13 +44,15 @@ class RSSFeed {
         return $this;
     }
 
-    public function setImage($url) {
+    public function setImage($url)
+    {
         $this->image_url=$url;
 
         return $this;
     }
 
-    public function addItem($url, $title, $description,$pubDate) {
+    public function addItem($url, $title, $description, $pubDate)
+    {
         $this->items[$this->nritems]['url']=$url;
         $this->items[$this->nritems]['title']=$title;
         $this->items[$this->nritems]['pubDate']=$pubDate;
@@ -57,7 +62,8 @@ class RSSFeed {
         return $this;
     }
 
-    public function output() {
+    public function output()
+    {
         $output =  '<?xml version="1.0" encoding="utf-8"?>'."\n";
         $output .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">'."\n";
         $output .= '<channel>'."\n";
@@ -76,7 +82,7 @@ class RSSFeed {
         $output .= '<link>'.$this->channel_url.'</link>'."\n";
         $output .= '</image>'."\n";
 
-        for($k=0; $k<$this->nritems; $k++) {
+        for ($k=0; $k<$this->nritems; $k++) {
             $output .= '<item>'."\n";
             $output .= '<title>'.$this->items[$k]['title'].'</title>'."\n";
             $output .= '<link>'.$this->items[$k]['url'].'</link>'."\n";

@@ -1,34 +1,41 @@
 <?php
 namespace FelixOnline\Base;
+
 /*
  * Current User class
  */
-abstract class AbstractCurrentUser {
+abstract class AbstractCurrentUser
+{
     private $user = null;
 
-    public function __construct() {
+    public function __construct()
+    {
         $app = App::getInstance();
 
-        if($app->getMode() == App::MODE_HTTP) {
-            if(!isset($app['env']['session'])) {
+        if ($app->getMode() == App::MODE_HTTP) {
+            if (!isset($app['env']['session'])) {
                 $app['env']['session'] = new Session(SESSION_NAME);
             }
         }
     }
 
-    public function isLoggedIn() {
+    public function isLoggedIn()
+    {
         return is_null($this->user);
     }
 
-    public function getUser() {
+    public function getUser()
+    {
         return $this->user;
     }
 
-    protected function setUser(AbstractUser $username) {
+    protected function setUser(AbstractUser $username)
+    {
         $this->user = $username;
     }
 
-    protected function unsetUser() {
+    protected function unsetUser()
+    {
         $this->user = null;
     }
 

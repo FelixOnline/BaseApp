@@ -7,7 +7,8 @@ use \FelixOnline\Exceptions\SQLException;
 /**
  * Base manager
  */
-class BaseManager {
+class BaseManager
+{
     /**
      * database table
      */
@@ -78,7 +79,8 @@ class BaseManager {
      */
     protected $allowDeleted = false;
 
-    public static function build($class, $table = null, $pk = null) {
+    public static function build($class, $table = null, $pk = null)
+    {
         $manager = new self();
         $manager->class = $class;
 
@@ -99,7 +101,8 @@ class BaseManager {
         return $manager;
     }
 
-    public function allowDeleted() {
+    public function allowDeleted()
+    {
         $this->allowDeleted = true;
 
         return $this;
@@ -108,10 +111,11 @@ class BaseManager {
     /**
      * Get all objects
      */
-    public function all() {
+    public function all()
+    {
         $_filters = $this->filters; // store filters
 
-        if(!$this->allowDeleted) {
+        if (!$this->allowDeleted) {
             $this->filters = array("`" . $this->table . "`.deleted = 0"); // reset them
         } else {
             $this->filters = array();
@@ -127,7 +131,8 @@ class BaseManager {
     /**
      * Filter objects
      */
-    public function filter($filter, $values = array(), $or = array()) {
+    public function filter($filter, $values = array(), $or = array())
+    {
         return $this->filterOnSpecifiedTable($this->table, $filter, $values, $or);
     }
 
@@ -147,14 +152,14 @@ class BaseManager {
 
         $string = '';
 
-        if(count($or) > 0) {
+        if (count($or) > 0) {
             $string .= '(';
         }
 
         $string .= "`" . $table . "`." . $app['safesql']->query($filter, $values);
 
-        if(count($or) > 0) {
-            foreach($or as $orStatement) {
+        if (count($or) > 0) {
+            foreach ($or as $orStatement) {
                 $string .= " OR `" . $table . "`." . $app['safesql']->query(
                     $orStatement[0],
                     $orStatement[1]
@@ -172,11 +177,12 @@ class BaseManager {
     /**
      * Order objects
      */
-    public function order($columns, $order) {
+    public function order($columns, $order)
+    {
         $colArray = array();
 
-        if(is_array($columns)) {
-            foreach($columns as $column) {
+        if (is_array($columns)) {
+            foreach ($columns as $column) {
                 $colArray[] = array($column, $order);
             }
         } else {
@@ -190,7 +196,8 @@ class BaseManager {
     /**
      * Order objects - multiple columns with different sort orders
      */
-    public function multiOrder($columns) {
+    public function multiOrder($columns)
+    {
         $this->order = $columns;
         return $this;
     }
@@ -198,7 +205,8 @@ class BaseManager {
     /**
      * Add limit to query
      */
-    public function limit($offset, $number) {
+    public function limit($offset, $number)
+    {
         $this->limit = array($offset, $number);
         return $this;
     }
@@ -206,7 +214,8 @@ class BaseManager {
     /**
      * Make the select result appear in random order
      */
-    public function randomise($switch = true) {
+    public function randomise($switch = true)
+    {
         $this->random = $switch;
         return $this;
     }
@@ -214,7 +223,8 @@ class BaseManager {
     /**
      * Add UNION
      */
-    public function union($q2) {
+    public function union($q2)
+    {
         $this->unions[] = $q2;
         return $this;
     }
@@ -222,8 +232,9 @@ class BaseManager {
     /**
      * Add grouping to query
      */
-    public function group($group) {
-        if(!is_array($group)) {
+    public function group($group)
+    {
+        if (!is_array($group)) {
             $this->group = array($group);
         } else {
             $this->group = $group;
@@ -235,7 +246,8 @@ class BaseManager {
     /**
      * Get count
      */
-    public function count() {
+    public function count()
+    {
         $sql = $this->getCountSql();
         $results = $this->query("SELECT COUNT(*) AS count FROM (".$sql.") AS result");
 
@@ -245,10 +257,11 @@ class BaseManager {
     /**
      * Get SQL for Count
      */
-    public function getCountSQL() {
+    public function getCountSQL()
+    {
         $statement = [];
 
-        if($this->distinct) {
+        if ($this->distinct) {
             $distinct = 'DISTINCT ';
         } else {
             $distinct = '';
@@ -261,7 +274,7 @@ class BaseManager {
         $statement[] = $this->getOrder();
         $statement[] = ")";
 
-        foreach($this->unions as $union) {
+        foreach ($this->unions as $union) {
             $statement[] = "UNION ".$distinct;
             $statement[] = $union->getCountSQL();
         }
@@ -277,7 +290,8 @@ class BaseManager {
     /**
      * Get values
      */
-    public function values($distinct = false) {
+    public function values($distinct = false)
+    {
         $this->distinct = $distinct;
 
         $sql = $this->getSQL();
@@ -296,10 +310,11 @@ class BaseManager {
     /**
      * Get sql
      */
-    public function getSQL() {
+    public function getSQL()
+    {
         $statement = [];
 
-        if($this->distinct) {
+        if ($this->distinct) {
             $distinct = 'DISTINCT ';
         } else {
             $distinct = '';
@@ -313,12 +328,12 @@ class BaseManager {
 
         $statement[] = ")";
 
-        foreach($this->unions as $union) {
+        foreach ($this->unions as $union) {
             $statement[] = "UNION ".$distinct;
             $statement[] = $union->getSQL();
         }
 
-        if($this->unions) {
+        if ($this->unions) {
             $statement[] = $this->getOrder(true);
         } else {
             $statement[] = $this->getOrder(false);
@@ -336,7 +351,8 @@ class BaseManager {
     /**
      * Get one
      */
-    public function one() {
+    public function one()
+    {
         $_limit = $this->limit;
         $this->limit = null;
 
@@ -375,7 +391,8 @@ class BaseManager {
     /**
      * Set cache status
      */
-    public function cache($flag, $expiry = null) {
+    public function cache($flag, $expiry = null)
+    {
         $this->cache = (boolean) $flag;
 
         if (!is_null($expiry)) {
@@ -387,14 +404,16 @@ class BaseManager {
     /**
      * From
      */
-    protected function getFrom() {
+    protected function getFrom()
+    {
         return "FROM `" . $this->table . "`";
     }
 
     /**
      * Get Join
      */
-    protected function getJoin() {
+    protected function getJoin()
+    {
         if (!empty($this->joins)) {
             $joins = array();
             foreach ($this->joins as $join) {
@@ -435,13 +454,14 @@ class BaseManager {
     /**
      * Where
      */
-    protected function getWhere() {
+    protected function getWhere()
+    {
         $filters = $this->getWhereAsArray();
 
         $string = '';
 
-        foreach($filters as $filter) {
-            if($string == '') {
+        foreach ($filters as $filter) {
+            if ($string == '') {
                 $string .= 'WHERE ';
             } else {
                 $string .= "\nAND ";
@@ -456,14 +476,15 @@ class BaseManager {
     /**
      * Where as array for recursive joins
      */
-    protected function getWhereAsArray() {
+    protected function getWhereAsArray()
+    {
         $filters = [];
 
         if (!empty($this->filters)) {
             $filters = $this->filters;
         }
 
-        if(!$this->allowDeleted) {
+        if (!$this->allowDeleted) {
             $filters[] = "(`" . $this->table . "`.deleted = 0 OR `" . $this->table . "`.deleted IS NULL)";
         }
 
@@ -480,14 +501,15 @@ class BaseManager {
     /**
      * Order
      */
-    protected function getOrder($tableless = false) {
+    protected function getOrder($tableless = false)
+    {
         if ($this->order) {
             $order = "ORDER BY ";
 
             $first = true;
 
-            foreach($this->order as $orderItem) {
-                if(!$first) {
+            foreach ($this->order as $orderItem) {
+                if (!$first) {
                     $order .= ", ";
                 }
 
@@ -506,7 +528,8 @@ class BaseManager {
     /**
      * Random Order
      */
-    protected function getRandom() {
+    protected function getRandom()
+    {
         if ($this->random) {
             $random = "ORDER BY RAND() ASC";
 
@@ -518,14 +541,15 @@ class BaseManager {
     /**
      * Group
      */
-    protected function getGroup($tableless = false) {
+    protected function getGroup($tableless = false)
+    {
         if ($this->group) {
             $group = "GROUP BY ";
 
             $first = true;
 
-            foreach($this->group as $groupCol) {
-                if(!$first) {
+            foreach ($this->group as $groupCol) {
+                if (!$first) {
                     $group .= ", ";
                 }
 
@@ -542,8 +566,9 @@ class BaseManager {
     /**
      * Get column reference
      */
-    protected function getColumnReference($column, $tableless) {
-        if($tableless) {
+    protected function getColumnReference($column, $tableless)
+    {
+        if ($tableless) {
             return $column;
         }
 
@@ -558,7 +583,8 @@ class BaseManager {
     /**
      * Limit
      */
-    protected function getLimit() {
+    protected function getLimit()
+    {
         if ($this->limit) {
             return "LIMIT " . implode(", ", $this->limit);
         }
@@ -568,7 +594,8 @@ class BaseManager {
     /**
      * Query sql
      */
-    protected function query($sql) {
+    protected function query($sql)
+    {
         $GLOBALS['current_sql'] = $sql;
 
         $app = \FelixOnline\Base\App::getInstance();
@@ -583,7 +610,7 @@ class BaseManager {
             return $results;
         }
 
-        set_error_handler(function($errno, $errstr) {
+        set_error_handler(function ($errno, $errstr) {
             $sql = $GLOBALS['current_sql']; // $sql in query function not in scope here - this is a nasty hack
             unset($GLOBALS['current_sql']);
 
@@ -612,7 +639,8 @@ class BaseManager {
     /**
      * Map result to models
      */
-    protected function resultToModels($result) {
+    protected function resultToModels($result)
+    {
         $models = array();
         foreach ($result as $r) {
             $pk = $r->{$this->pk};
@@ -621,7 +649,8 @@ class BaseManager {
                 // It is inefficient to fetch every record from the DB here
                 // Instead, pass in the result data
                 $models[] = new $this->class($pk, $r);
-            } catch(\Exception $e) { }
+            } catch (\Exception $e) {
+            }
         }
         return $models;
     }

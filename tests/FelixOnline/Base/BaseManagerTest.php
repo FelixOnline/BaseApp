@@ -3,13 +3,15 @@
 require_once __DIR__ . '/../../AppTestCase.php';
 //require_once __DIR__ . '/../../utilities.php';
 
-class BaseManagerTest extends AppTestCase {
+class BaseManagerTest extends AppTestCase
+{
     public $fixtures = array(
         'audit_log',
         'article_authors'
     );
 
-    public function getManager() {
+    public function getManager()
+    {
         $manager = $this->mock('FelixOnline\\Base\\BaseManager')
         ->new();
 
@@ -19,7 +21,8 @@ class BaseManagerTest extends AppTestCase {
         return $manager;
     }
 
-    public function testBuildManagerWithNull() {
+    public function testBuildManagerWithNull()
+    {
         $manager = FelixOnline\Base\BaseManager::build(
             'FelixOnline\\Base\\AuditLog');
 
@@ -28,7 +31,8 @@ class BaseManagerTest extends AppTestCase {
     }
 
 
-    public function testSQL() {
+    public function testSQL()
+    {
         $manager = $this->getManager();
 
         $manager->filter("table IS NOT NULL")
@@ -48,7 +52,8 @@ ORDER BY `audit_log`.`id` DESC
 LIMIT 0, 10');
     }
 
-    public function testAll() {
+    public function testAll()
+    {
         $manager = $this->getManager();
 
         $all = $manager->all();
@@ -58,7 +63,8 @@ LIMIT 0, 10');
         $this->assertEquals('create', $all[0]->getAction());
     }
 
-    public function testFilter() {
+    public function testFilter()
+    {
         $manager = $this->getManager();
 
         $filtered = $manager->filter('action = "create"')
@@ -69,7 +75,8 @@ LIMIT 0, 10');
         $this->assertInstanceOf('FelixOnline\Base\AuditLog', $filtered[0]);
     }
 
-    public function testFilterParams() {
+    public function testFilterParams()
+    {
         $manager = $this->getManager();
 
         $manager->filter('table = %i', array(1));
@@ -83,7 +90,8 @@ AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
 )');
     }
 
-    public function testFilterParamsException() {
+    public function testFilterParamsException()
+    {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -93,7 +101,8 @@ AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
         $manager->filter('category = %i', 1);
     }
 
-    public function testOrder() {
+    public function testOrder()
+    {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
@@ -107,7 +116,8 @@ AND (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
         $this->assertEquals($results[0]->getId(), 1);
     }
 
-    public function testOrderMultiple() {
+    public function testOrderMultiple()
+    {
         $manager = $this->getManager();
 
         $query = $manager->order(array('id', 'key'), 'DESC');
@@ -121,7 +131,8 @@ WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
 ORDER BY `audit_log`.`id` DESC, `audit_log`.`key` DESC");
     }
 
-    public function testOrderWithTable() {
+    public function testOrderWithTable()
+    {
         $manager = $this->getManager();
 
         $query = $manager->order('another_table.id', 'DESC');
@@ -135,7 +146,8 @@ WHERE (`audit_log`.deleted = 0 OR `audit_log`.deleted IS NULL)
 ORDER BY another_table.id DESC");
     }
 
-    public function testLimit() {
+    public function testLimit()
+    {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
@@ -148,7 +160,8 @@ ORDER BY another_table.id DESC");
         $this->assertCount(1, $results);
     }
 
-    public function testCount() {
+    public function testCount()
+    {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
@@ -160,7 +173,8 @@ ORDER BY another_table.id DESC");
         $this->assertEquals($count, 2);
     }
 
-    public function testCountWithLimit() {
+    public function testCountWithLimit()
+    {
         $manager = $this->getManager();
 
         $query = $manager->filter('action = "create"')
@@ -173,7 +187,8 @@ ORDER BY another_table.id DESC");
         $this->assertEquals($count, 2);
     }
 
-    public function testQueryExceptionsBadQuery() {
+    public function testQueryExceptionsBadQuery()
+    {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -182,7 +197,8 @@ ORDER BY another_table.id DESC");
         $manager->filter('not valid sql')->values();
     }
 
-    public function testQueryNoResults() {
+    public function testQueryNoResults()
+    {
         $manager = $this->getManager();
 
         $null = $manager->filter('id = 0')->values();
@@ -190,7 +206,8 @@ ORDER BY another_table.id DESC");
         $this->assertNull($null);
     }
 
-    public function testGetOne() {
+    public function testGetOne()
+    {
         $manager = $this->getManager();
 
         $one = $manager->filter('id = %i', array(1))
@@ -199,7 +216,8 @@ ORDER BY another_table.id DESC");
         $this->assertInstanceOf('FelixOnline\Base\AuditLog', $one);
     }
 
-    public function testGetOneMoreThanOne() {
+    public function testGetOneMoreThanOne()
+    {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -212,7 +230,8 @@ ORDER BY another_table.id DESC");
                        ->one();
     }
 
-    public function testGetOneException() {
+    public function testGetOneException()
+    {
         $manager = $this->getManager();
 
         $this->setExpectedException(
@@ -222,7 +241,8 @@ ORDER BY another_table.id DESC");
         $manager->filter('id = 0')->one();
     }
 
-    public function testJoin() {
+    public function testJoin()
+    {
         $m1 = $this->getManager();
         $m1->filter('date < "2010-12-31 23:59:59"');
 
@@ -250,7 +270,8 @@ AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
 ORDER BY `audit_log`.`id` ASC');
     }
 
-    public function testNestedJoin() {
+    public function testNestedJoin()
+    {
         $m1 = $this->getManager();
         $m1->filter('date < "2010-12-31 23:59:59"');
 
@@ -290,7 +311,8 @@ AND (`category_author`.deleted = 0 OR `category_author`.deleted IS NULL)
 ORDER BY `audit_log`.`id` ASC');
     }
 
-    public function testLeftJoin() {
+    public function testLeftJoin()
+    {
         $m1 = $this->getManager();
         $m2 = $this->getManager();
 
@@ -313,7 +335,8 @@ AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
 )');
     }
 
-    public function testLeftJoinSpecificColumn() {
+    public function testLeftJoinSpecificColumn()
+    {
         $m1 = $this->getManager();
         $m2 = $this->getManager();
 
@@ -336,7 +359,8 @@ AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
 )');
     }
 
-    public function testJoinCount() {
+    public function testJoinCount()
+    {
         $m1 = $this->getManager();
         $m1->filter('action = "create"');
 
@@ -355,7 +379,8 @@ AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
         $this->assertEquals($count, 2);
     }
 
-    public function testBuild() {
+    public function testBuild()
+    {
         $manager = \FelixOnline\Base\BaseManager::build(
             'FelixOnline\Base\Article',
             'article',
@@ -367,7 +392,8 @@ AND (`article_author`.deleted = 0 OR `article_author`.deleted IS NULL)
         $this->assertEquals($manager->pk, 'id');
     }
 
-    public function testCache() {
+    public function testCache()
+    {
         $app = \FelixOnline\Base\App::getInstance();
 
         $manager = $this->getManager();

@@ -1,9 +1,11 @@
 <?php
 namespace FelixOnline\Exceptions;
+
 /**
  * If there is an error in the model (i.e. wrong verb)
  */
-class ModelConfigurationException extends UniversalException {
+class ModelConfigurationException extends UniversalException
+{
     protected $verb;
     protected $property;
     protected $class;
@@ -26,19 +28,23 @@ class ModelConfigurationException extends UniversalException {
         parent::__construct($message, $code, $previous);
     }
 
-    public function getVerb() {
+    public function getVerb()
+    {
         return $this->verb;
     }
 
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
-    public function getClass() {
+    public function getClass()
+    {
         return $this->class;
     }
 
-    public function getItem() {
+    public function getItem()
+    {
         return $this->item;
     }
 }

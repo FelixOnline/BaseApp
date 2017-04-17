@@ -1,7 +1,8 @@
 <?php
 namespace FelixOnline\Base;
 
-trait ControllerCookiesTrait {
+trait ControllerCookiesTrait
+{
     private function getCookie(
         $cookie,
         \Psr\Http\Message\ServerRequestInterface $request
@@ -38,11 +39,11 @@ trait ControllerCookiesTrait {
     ) {
         $setCookie = \Dflydev\FigCookies\SetCookie::createExpired($cookie);
 
-        if($domain) {
+        if ($domain) {
             $setCookie = $setCookie->withDomain($domain);
         }
 
-        if($path) {
+        if ($path) {
             $setCookie = $setCookie->withPath($path);
         }
 
@@ -56,7 +57,9 @@ trait ControllerCookiesTrait {
         return \Dflydev\FigCookies\FigResponseCookies::modify(
             $response,
             $cookie->getName(),
-            function($cookie) { return $cookie; }
+            function ($cookie) {
+                return $cookie;
+            }
         );
     }
 }

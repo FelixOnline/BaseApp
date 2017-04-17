@@ -6,7 +6,8 @@ require_once __DIR__ . '/../lib/SafeSQL.php';
 /**
  * App test case - extend from this for anything requiring the App class.
  */
-class AppTestCase extends DatabaseTestCase {
+class AppTestCase extends DatabaseTestCase
+{
     use \Xpmock\TestCaseTrait;
 
     protected $appConfig = array();
@@ -16,7 +17,8 @@ class AppTestCase extends DatabaseTestCase {
     /*
      * Set up an instance of App, and connect to the database.
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
 
         $dbuser = getenv('DB_USER') ? getenv('DB_USER') : 'root';
@@ -71,7 +73,8 @@ class AppTestCase extends DatabaseTestCase {
     /*
      * Close down App.
      */
-    public function tearDown() {
+    public function tearDown()
+    {
         parent::tearDown();
 
         $app = \FelixOnline\Base\App::getInstance();

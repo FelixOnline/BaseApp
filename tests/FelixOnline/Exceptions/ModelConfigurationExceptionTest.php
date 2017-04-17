@@ -11,7 +11,7 @@ class ModelConfigurationExceptionTest extends PHPUnit_Framework_TestCase
             'get',
             'bar',
             'test',
-            NULL
+            null
         );
     }
 
@@ -26,7 +26,7 @@ class ModelConfigurationExceptionTest extends PHPUnit_Framework_TestCase
             'get',
             'bar',
             'test',
-            NULL
+            null
         );
     }
 
@@ -42,7 +42,7 @@ class ModelConfigurationExceptionTest extends PHPUnit_Framework_TestCase
             'get',
             'bar',
             'test',
-            NULL
+            null
         );
     }
 }

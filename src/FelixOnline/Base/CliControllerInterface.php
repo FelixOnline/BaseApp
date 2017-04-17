@@ -1,7 +1,8 @@
 <?php
 namespace FelixOnline\Base;
 
-interface CliControllerInterface {
+interface CliControllerInterface
+{
     // BSD sysexits.h
     const STATUS_OK = 0;
     const STATUS_USAGE = 64;

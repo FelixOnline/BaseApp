@@ -1,7 +1,8 @@
 <?php
 namespace FelixOnline\Base;
 
-interface GlueInterface {
+interface GlueInterface
+{
     public function __construct();
 
     public function addMiddleware($middleware);

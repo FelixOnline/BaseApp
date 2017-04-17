@@ -1,5 +1,6 @@
 <?php
 namespace FelixOnline\Base;
+
 /**
  * Session class
  */

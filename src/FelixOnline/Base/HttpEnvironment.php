@@ -3,17 +3,19 @@ namespace FelixOnline\Base;
 
 use FelixOnline\Exceptions\InternalException;
 
-class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
+class HttpEnvironment implements EnvironmentInterface, \ArrayAccess
+{
     protected $properties;
     private $request;
     private $response;
     private $emitter;
     private $glue;
 
-    public function __construct() {
+    public function __construct()
+    {
         $env = array();
 
-        if(php_sapi_name() == "cli") {
+        if (php_sapi_name() == "cli") {
             // Remote params
             $env['Method'] = 'CLI';
             $env['RemoteIP'] = '127.0.0.1';
@@ -49,59 +51,70 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess {
         $this->glue->addMiddleware(new \Psr7Middlewares\Middleware\PhpSession(SESSION_NAME));
     }
 
-    public function offsetSet($offset, $value) {
-        if(is_null($offset)) {
+    public function offsetSet($offset, $value)
+    {
+        if (is_null($offset)) {
             $this->properties[] = $value;
         } else {
             $this->properties[$offset] = $value;
         }
     }
 
-    public function offsetExists($offset) {
+    public function offsetExists($offset)
+    {
         return isset($this->properties[$offset]);
     }
 
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset)
+    {
         unset($this->properties[$offset]);
     }
 
-    public function offsetGet($offset) {
+    public function offsetGet($offset)
+    {
         return isset($this->properties[$offset]) ? $this->properties[$offset] : null;
     }
 
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 
-    public function setResponse($response) {
-        if(!($response instanceof \Psr\Http\Message\ResponseInterface)) {
+    public function setResponse($response)
+    {
+        if (!($response instanceof \Psr\Http\Message\ResponseInterface)) {
             throw new InternalException('Not a PSR-7 Response');
         }
 
         $this->response = $response;
     }
 
-    public function getGlue() {
+    public function getGlue()
+    {
         return $this->glue;
     }
 
-    public function dispatch() {
-        if(!($this->response instanceof \Psr\Http\Message\ResponseInterface)) {
+    public function dispatch()
+    {
+        if (!($this->response instanceof \Psr\Http\Message\ResponseInterface)) {
             throw new InternalException('Set a PSR-7 Response');
         }
         $this->response = $this->getGlue()->dispatch($this->request, $this->response);
     }
 
-    public function dispatchAndEmit() {
+    public function dispatchAndEmit()
+    {
         $this->dispatch();
         $this->emit();
     }
 
-    public function emit() {
+    public function emit()
+    {
         $this->emitter->emit($this->response);
     }
 
-    public function terminate($status = 0) {
+    public function terminate($status = 0)
+    {
         exit($status);
     }
 }

@@ -1,9 +1,11 @@
 <?php
 namespace FelixOnline\Exceptions;
+
 /**
  * If there is a SQL error
  */
-class SQLException extends UniversalException {
+class SQLException extends UniversalException
+{
     protected $query;
 
     public function __construct(
@@ -17,7 +19,8 @@ class SQLException extends UniversalException {
         parent::__construct($message, $code, $previous);
     }
 
-    public function getQuery() {
+    public function getQuery()
+    {
         return $this->query;
     }
 }

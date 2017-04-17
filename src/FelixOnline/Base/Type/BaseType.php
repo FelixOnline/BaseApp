@@ -1,7 +1,8 @@
 <?php
 namespace FelixOnline\Base\Type;
 
-class BaseType {
+class BaseType
+{
     public $config;
     protected $value;
     protected $placeholder = "'%s'";
@@ -9,7 +10,8 @@ class BaseType {
     const TRANSFORMER_NONE = 1;
     const TRANSFORMER_NO_HTML = 2;
 
-    public function __construct($config = array()) {
+    public function __construct($config = array())
+    {
         $this->config = $config + array(
             'primary' => false,
             'null' => true,
@@ -18,9 +20,10 @@ class BaseType {
         );
     }
 
-    public function setValue($value) {
-        foreach($this->config['transformers'] as $transformer) {
-            switch($transformer) {
+    public function setValue($value)
+    {
+        foreach ($this->config['transformers'] as $transformer) {
+            switch ($transformer) {
                 case self::TRANSFORMER_NO_HTML:
                     $value = strip_tags($value);
                     break;
@@ -34,18 +37,21 @@ class BaseType {
         return $this;
     }
 
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
     /**
      * Return unfiltered value
      */
-    public function getRawValue() {
+    public function getRawValue()
+    {
         return $this->value;
     }
 
-    public function getSQL() {
+    public function getSQL()
+    {
         $app = \FelixOnline\Base\App::getInstance();
 
         if (is_null($this->value) && $this->config['null'] == true) {
