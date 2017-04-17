@@ -466,10 +466,13 @@ class BaseDB extends BaseModel
         $return = $app['db']->query($sql);
         $time_stop = time();
 
-        $app['db_log'][] = array(
+        $log = $app['db_log'];
+        $log[] = array(
             'Query' => $sql,
             'Time' => $time_stop - $time_start
         );
+
+        $app['db_log'] = $log;
 
         return $return;
     }
@@ -482,10 +485,13 @@ class BaseDB extends BaseModel
         $return = $app['db']->get_row($sql);
         $time_stop = time();
 
-        $app['db_log'][] = array(
+        $log = $app['db_log'];
+        $log[] = array(
             'Query' => $sql,
             'Time' => $time_stop - $time_start
         );
+
+        $app['db_log'] = $log;
 
         return $return;
     }

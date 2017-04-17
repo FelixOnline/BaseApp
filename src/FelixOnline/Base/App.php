@@ -178,13 +178,19 @@ class App implements \ArrayAccess
             !isset($this->container['db']) ||
             !($this->container['db'] instanceof \ezSQL_mysqli)
         ) {
+            if (isset(self::$options['db_port'])) {
+                $port = self::$options['db_port'];
+            } else {
+                $port = null;
+            }
+
             $db = new \ezSQL_mysqli();
-            $status = $db->quick_connect(
+            $status = @$db->quick_connect(
                 self::$options['db_user'],
                 self::$options['db_pass'],
                 self::$options['db_name'],
                 self::$options['db_host'],
-                self::$options['db_port'],
+                $port,
                 'utf8'
             );
 
