@@ -145,7 +145,12 @@ class App implements \ArrayAccess
             is_null($this->container['email'])
         ) {
             // Initialize email
-            $transport = \Swift_MailTransport::newInstance();
+            if($this->isRunningUnitTests()) {
+                $transport = \Swift_NullTransport::newInstance();
+            } else {
+                $transport = \Swift_MailTransport::newInstance(); // This is removed in swiftmailer 6, FIXME
+            }
+
             $this->container['email'] = \Swift_Mailer::newInstance($transport);
         }
 
