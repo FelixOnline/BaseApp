@@ -18,7 +18,7 @@
         "rzekanet/service-akismet": "@stable",
         "jv2222/ezsql": "dev-master",
         "tedivm/stash": "@stable",
-        "swiftmailer/swiftmailer": "@stable",
+        "swiftmailer/swiftmailer": "5.4.*",
         "leafo/lessphp": "@stable",
         "leafo/scssphp": "@stable",
         "kriswallsmith/assetic": "@stable",
