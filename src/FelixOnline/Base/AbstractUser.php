@@ -1,24 +1,18 @@
 <?php
 namespace FelixOnline\Base;
 
-abstract class AbstractCurrentUser
+abstract class AbstractUser extends BaseDB
 {
-    public function __construct()
+    public function __construct($fields, $uname)
     {
+        parent::__construct($fields, $uname);
     }
 
     abstract public function getUsername();
-    abstract public function getName();
-    abstract public function getEmail();
     abstract public function getPasswordHash();
 
-    abstract public function setUsername();
-    abstract public function setName();
-    abstract public function setEmail();
-    abstract public function setPasswordHash();
-
-    abstract public function save();
-    abstract public function delete();
+    abstract public function setUsername($username);
+    abstract public function setPasswordHash($hash);
 
     // Set password and return hash.
     public function hashPassword(string $password)

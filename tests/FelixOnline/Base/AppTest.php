@@ -15,17 +15,6 @@ class AppTest extends DatabaseTestCase
 
         $app['env'] = new \FelixOnline\Base\HttpEnvironment();
 
-        $session = $this->mock('FelixOnline\\Base\\Session')
-            ->getId(1)
-            ->start(1)
-            ->reset()
-            ->new();
-
-        $this->reflect($session)
-            ->__set('session', array());
-
-        $app['env']['session'] = $session;
-
         $app->run();
 
         return $app;

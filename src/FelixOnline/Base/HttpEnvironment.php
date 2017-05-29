@@ -20,6 +20,7 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess
             $env['Method'] = 'CLI';
             $env['RemoteIP'] = '127.0.0.1';
             $env['RemoteUA'] = 'Cli/1.0';
+            $env['Referer'] = 'Unknown';
 
             // Request
             $env['ScriptName'] = 'cli';
@@ -30,6 +31,7 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess
             $env['Method'] = $_SERVER['REQUEST_METHOD'];
             $env['RemoteIP'] = $_SERVER['REMOTE_ADDR'];
             $env['RemoteUA'] = $_SERVER['HTTP_USER_AGENT'];
+            $env['Referer'] = $_SERVER['HTTP_REFERER'];
 
             // Request
             $env['ScriptName'] = $_SERVER['SCRIPT_NAME'];
@@ -48,7 +50,9 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess
         $this->emitter = new \Zend\Diactoros\Response\SapiEmitter();
 
         $this->glue = new HttpGlue();
-        $this->glue->addMiddleware(new \Psr7Middlewares\Middleware\PhpSession(SESSION_NAME));
+        $session = new Session(SESSION_NAME, (php_sapi_name() == "cli"));
+        $session->start();
+        $this->properties['session'] = $session;
     }
 
     public function offsetSet($offset, $value)
@@ -111,6 +115,10 @@ class HttpEnvironment implements EnvironmentInterface, \ArrayAccess
     public function emit()
     {
         $this->emitter->emit($this->response);
+
+        try {
+            $this->properties['env']['session']->close();
+        } catch(\Exception $e) {}
     }
 
     public function terminate($status = 0)

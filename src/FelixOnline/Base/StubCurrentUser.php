@@ -22,14 +22,12 @@ class StubCurrentUser extends AbstractCurrentUser
         $this->user = $user;
     }
 
-    public function logInFromSession(AbstractUser $user)
+    public function logInFromSession()
     {
-        $this->user = $user;
     }
 
-    public function logInFromCookie(AbstractUser $user)
+    public function createSession()
     {
-        $this->user = $user;
     }
 
     public function logOut()
@@ -37,13 +35,7 @@ class StubCurrentUser extends AbstractCurrentUser
         $this->user = null;
     }
 
-    public function logOutFromSession()
+    public function destroySession()
     {
-        $this->user = null;
-    }
-
-    public function logOutFromCookie()
-    {
-        $this->user = null;
     }
 }

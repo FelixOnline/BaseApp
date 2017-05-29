@@ -1,21 +1,24 @@
 <?php
 namespace FelixOnline\Base;
+use \FelixOnline\Exceptions\InternalException;
 
 /**
  * Session class
  */
 class Session implements \ArrayAccess
 {
-    public $session = array();
     private $name;
     private $id;
+    private $cli;
+    private $clistore = array();
 
     /**
      * Constructor
      */
-    public function __construct($name)
+    public function __construct($name, $cli = false)
     {
         $this->name = $name; // session name
+        $this->cli = $cli;
     }
 
     /**
@@ -24,15 +27,23 @@ class Session implements \ArrayAccess
      */
     public function start()
     {
-        session_name($this->name); // set session name
-        if (session_status() == PHP_SESSION_NONE) {
-            throw new Exceptions\InternalException('Session middleware not loaded');
+        if(!$this->cli) {
+            if (session_status() === PHP_SESSION_DISABLED) {
+                throw new InternalException('Sessions are disabled');
+            }
+
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                throw new InternalException('Session already started.');
+            }
+
+            session_name($this->name); // set session name
+            session_start();
+
+            $this->id = session_id();
+        } else {
+            $this->clistore = array();
+            $this->id = rand();
         }
-
-        $this->session = &$_SESSION[$this->name];
-
-        $this->id = session_id();
-        return $this->id;
     }
 
     /**
@@ -41,13 +52,32 @@ class Session implements \ArrayAccess
      */
     public function reset()
     {
-        session_destroy();
-        session_start();
-        session_regenerate_id(true);
+        if($this->id == null) {
+            throw new InternalException('Session not loaded');
+        }
 
-        $this->id = session_id();
+        if(!$this->cli) {
+            session_destroy();
+        }
 
-        return $this->id;
+        $this->start();
+    }
+
+    /**
+     * Emit session data
+     * @codeCoverageIgnore
+     */
+    public function close()
+    {
+        if($this->id == null) {
+            throw new InternalException('Session not loaded');
+        }
+
+        if(!$this->cli) {
+            session_write_close();
+        }
+
+        $this->id = null;
     }
 
     /**
@@ -56,31 +86,75 @@ class Session implements \ArrayAccess
      */
     public function destroy()
     {
-        session_destroy();
+        if($this->id == null) {
+            throw new InternalException('Session not loaded');
+        }
+
+        if(!$this->cli) {
+            session_destroy();
+        }
+
+        $this->id = null;
     }
 
     public function offsetSet($offset, $value)
     {
-        if (is_null($offset)) {
-            $this->session[] = $value;
+        if($this->id == null) {
+            throw new InternalException('Session not loaded');
+        }
+
+        if(!$this->cli) {
+            if (is_null($offset)) {
+                $_SESSION[] = $value;
+            } else {
+                $_SESSION[$offset] = $value;
+            }
         } else {
-            $this->session[$offset] = $value;
+            if (is_null($offset)) {
+                $this->clistore[] = $value;
+            } else {
+                $this->clistore[$offset] = $value;
+            }
         }
     }
 
     public function offsetExists($offset)
     {
-        return isset($this->session[$offset]);
+        if($this->id == null) {
+            throw new InternalException('Session not loaded');
+        }
+
+        if(!$this->cli) {
+            return isset($_SESSION[$offset]);
+        } else {
+            return isset($this->clistore[$offset]);
+        }
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->session[$offset]);
+        if($this->id == null) {
+            throw new InternalException('Session not loaded');
+        }
+
+        if(!$this->cli) {
+            unset($_SESSION[$offset]);
+        } else {
+            unset($this->clistore[$offset]);
+        }
     }
 
     public function offsetGet($offset)
     {
-        return isset($this->session[$offset]) ? $this->session[$offset] : null;
+        if($this->id == null) {
+            throw new InternalException('Session not loaded');
+        }
+
+        if(!$this->cli) {
+            return isset($_SESSION[$offset]) ? $_SESSION[$offset] : null;
+        } else {
+            return isset($this->clistore[$offset]) ? $this->clistore[$offset] : null;
+        }
     }
 
     public function getName()
