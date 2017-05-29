@@ -14,7 +14,7 @@
 		<field Field="img1" Type="int(11)" Null="YES" Key="MUL" Extra="" Comment="" />
 		<field Field="img_caption" Type="varchar(300)" Null="YES" Key="" Extra="" Comment="" />
 		<field Field="comment_status" Type="int(11)" Null="YES" DEFAULT="1" Key="" Extra="" Comment="" />
-		<field Field="deleted" Type="tinyint(1)" Null="NO" Key="" Extra="" Comment="" />
+		<field Field="deleted" Type="tinyint(1)" Null="NO" Key="" Default="0" Extra="" Comment="" />
 		<field Field="video_url" Type="varchar(300)" Null="YES" Key="MUL" Extra="" Comment="" />
 		<field Field="is_live" Type="tinyint(1)" Null="NO" Default="0" Key="" Extra="" Comment="" />
 		<field Field="blog" Type="int(11)" Null="YES" Key="" Extra="" Comment="" />

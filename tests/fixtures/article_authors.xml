@@ -5,7 +5,7 @@
 		<field Field="id" Type="int(11)" Null="NO" Key="PRI" Extra="auto_increment" Comment="" />
 		<field Field="article" Type="int(11)" Null="NO" Key="MUL" Extra="" Comment="" />
 		<field Field="user" Type="varchar(16)" Null="YES" Key="" Extra="" Comment="" />
-		<field Field="deleted" Type="tinyint(1)" Null="NO" Key="" Extra="" Comment="" />
+		<field Field="deleted" Type="tinyint(1)" Null="NO" Key="" Default="0" Extra="" Comment="" />
 		<key Table="article_author" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="id" Collation="A" Cardinality="5923144" Null="" Index_type="BTREE" Comment="" Index_comment="" />
 		<key Table="article_author" Non_unique="1" Key_name="article" Seq_in_index="1" Column_name="article" Collation="A" Cardinality="6274" Null="" Index_type="BTREE" Comment="" Index_comment="" />
 		<key Table="article_author" Non_unique="1" Key_name="article" Seq_in_index="3" Column_name="user" Collation="A" Cardinality="5923144" Null="YES" Index_type="BTREE" Comment="" Index_comment="" />
